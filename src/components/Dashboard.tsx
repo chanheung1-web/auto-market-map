@@ -13,6 +13,16 @@ import { RegionMap } from "./RegionMap";
 import { TopicsPanel } from "./TopicsPanel";
 import { ValueChainSection } from "./ValueChainSection";
 
+// ページは電話だと数画面ぶんの高さがあるので、各セクションにアンカーを付けて
+// 上の固定バーから飛べるようにする（stock-trading-app と同じ作り）。
+// 並びはページの並びに合わせること。
+const SECTIONS = [
+  { id: "topics", label: "重要トピック" },
+  { id: "map", label: "世界地図" },
+  { id: "chain", label: "バリューチェーン" },
+  { id: "news", label: "個別ニュース" },
+] as const;
+
 const REFRESH_MS = 60_000;
 /** 保有・ウォッチの読み直し間隔。stock-trading-app 側の編集を拾うため。 */
 const PORTFOLIO_REFRESH_MS = 5 * 60_000;
@@ -201,33 +211,51 @@ export function Dashboard() {
   }, [visibleCompanies, quotes]);
 
   return (
-    <main className="mx-auto max-w-5xl space-y-6 p-3 sm:p-6">
-      <header className="space-y-1">
-        <h1 className="text-lg font-bold text-zinc-100 sm:text-xl">
-          自動車バリューチェーン・マーケットマップ
-        </h1>
-        <p className="text-xs text-zinc-500">
-          完成車から素材まで {companies.length} 社の株価と、auto-industry-watcher が
-          集めたニュース・ダイジェストを1画面で見る
-        </p>
-        <p className="text-xs text-zinc-500">
-          {loading
-            ? "株価を取得中…"
-            : fetchedAt
-              ? `最終更新 ${new Date(fetchedAt).toLocaleTimeString("ja-JP")}（60秒ごと）`
-              : ""}
+    <main className="mx-auto max-w-5xl p-3 sm:p-6">
+      {/* 固定ナビ。負のマージンで親の余白ぶん外へ広げ、スクロール時に
+          背景が透けないよう端まで塗る。 */}
+      <div className="sticky top-0 z-30 -mx-3 mb-4 border-b border-zinc-800 bg-zinc-950/95 px-3 py-2 backdrop-blur sm:-mx-6 sm:px-6">
+        <div className="mb-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+          <h1 className="text-sm font-bold text-zinc-100 sm:text-base">
+            自動車マーケットマップ
+          </h1>
+          <span className="text-[11px] text-zinc-500">
+            {loading
+              ? "株価を取得中…"
+              : fetchedAt
+                ? `${companies.length}社 · 更新 ${new Date(fetchedAt).toLocaleTimeString("ja-JP")}`
+                : `${companies.length}社`}
+          </span>
           {portfolio?.error && (
-            <span className="ml-2 text-amber-400">
-              保有情報を読めません（stock-trading-app 未検出）
-            </span>
+            <span className="text-[11px] text-amber-400">保有情報を読めません</span>
           )}
-          {error && <span className="ml-2 text-red-400">{error}</span>}
-        </p>
-      </header>
+          {error && <span className="text-[11px] text-red-400">{error}</span>}
+        </div>
+
+        {/* 折り返さず横スクロールにする。電話では縦が足りない資源なので、
+            バーは常に1行に収める。 */}
+        <nav aria-label="セクション">
+          <ul className="flex gap-1.5 overflow-x-auto">
+            {SECTIONS.map((section) => (
+              <li key={section.id}>
+                <a
+                  href={`#${section.id}`}
+                  className="block whitespace-nowrap rounded-full border border-zinc-700 px-2.5 py-1 text-xs text-zinc-300 transition hover:border-zinc-500 hover:text-zinc-100"
+                >
+                  {section.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+
+      <div className="space-y-6">
 
       {/* 個別ニュースより先に置く。編集済みの論点のほうが読む価値が高く、
-          スクロールの上のほうにある必要がある。 */}
-      <section>
+          スクロールの上のほうにある必要がある。
+          scroll-mt は固定バーの高さぶん。これが無いと見出しがバーの裏に隠れる。 */}
+      <section id="topics" className="scroll-mt-24">
         <h2 className="mb-3 text-base font-semibold text-zinc-100">重要トピック</h2>
         <TopicsPanel weekly={topics.weekly} daily={topics.daily} />
       </section>
@@ -251,7 +279,7 @@ export function Dashboard() {
         ))}
       </nav>
 
-      <section className="space-y-2">
+      <section id="map" className="scroll-mt-24 space-y-2">
         <RegionMap summaries={summaries} selected={region} onSelect={setRegion} />
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-zinc-400">
           <span>
@@ -275,7 +303,7 @@ export function Dashboard() {
         </div>
       </section>
 
-      <section>
+      <section id="chain" className="scroll-mt-24">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-base font-semibold text-zinc-100">バリューチェーン</h2>
           <AddCompanyForm onAdded={applyCompanies} />
@@ -311,7 +339,7 @@ export function Dashboard() {
 
       {/* scroll-mt は上に少し余白を残すため。ぴったり上端に付けると
           見出しが画面の縁に貼り付いて、どこに飛んだのか分かりにくい。 */}
-      <section ref={newsRef} id="news" className="scroll-mt-4">
+      <section ref={newsRef} id="news" className="scroll-mt-24">
         <h2 className="mb-3 flex items-center gap-2 text-base font-semibold text-zinc-100">
           個別ニュース
           {selectedCompany && (
@@ -332,10 +360,11 @@ export function Dashboard() {
         />
       </section>
 
-      <footer className="border-t border-zinc-800 pt-3 text-xs text-zinc-600">
-        株価は Yahoo Finance の非公式エンドポイントによる参考値で、遅延・欠損があります。
-        情報整理を目的としたもので、投資助言ではありません。
-      </footer>
+        <footer className="border-t border-zinc-800 pt-3 text-xs text-zinc-600">
+          株価は Yahoo Finance の非公式エンドポイントによる参考値で、遅延・欠損があります。
+          情報整理を目的としたもので、投資助言ではありません。
+        </footer>
+      </div>
     </main>
   );
 }
