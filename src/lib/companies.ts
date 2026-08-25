@@ -42,13 +42,14 @@ export type Company = {
   layer: Layer;
   /** 何をやっている会社か。1行。 */
   position: string;
-  /** 保有銘柄なら true。stock-trading-app の data/holdings.json と手動で揃える。 */
-  held?: boolean;
+  // 保有・ウォッチの状態はここに持たない。stock-trading-app の data/*.json を
+  // 実行時に読む（src/lib/portfolio.ts）。静的に持っていた時期に実際の保有と
+  // 食い違ったため、二重管理をやめた。
 };
 
 export const COMPANIES: Company[] = [
   // ── 完成車(OEM) ─────────────────────────────────────────────
-  { id: "toyota", name: "トヨタ自動車", code: "7203.T", exchange: "東証P", region: "日本", country: "日本", layer: "OEM", position: "世界最大手。HV主体だがBEVも拡大", held: true },
+  { id: "toyota", name: "トヨタ自動車", code: "7203.T", exchange: "東証P", region: "日本", country: "日本", layer: "OEM", position: "世界最大手。HV主体だがBEVも拡大" },
   { id: "honda", name: "本田技研工業", code: "7267.T", exchange: "東証P", region: "日本", country: "日本", layer: "OEM", position: "二輪の比重が大きく四輪だけでは実態を掴めない" },
   { id: "nissan", name: "日産自動車", code: "7201.T", exchange: "東証P", region: "日本", country: "日本", layer: "OEM", position: "北米・中国の立て直しが継続課題" },
   { id: "suzuki", name: "スズキ", code: "7269.T", exchange: "東証P", region: "日本", country: "日本", layer: "OEM", position: "インド市場のシェアが業績を左右する" },
@@ -108,6 +109,18 @@ export const COMPANIES: Company[] = [
   { id: "yazaki", name: "矢崎総業", code: null, exchange: null, region: "日本", country: "日本", layer: "TIER1", position: "非上場。ワイヤーハーネス世界首位級" },
   { id: "bridgestone", name: "ブリヂストン", code: "5108.T", exchange: "東証P", region: "日本", country: "日本", layer: "TIER1", position: "タイヤ世界首位級。補修需要で景気耐性がある" },
   { id: "nidec", name: "ニデック", code: "6594.T", exchange: "東証P", region: "日本", country: "日本", layer: "TIER1", position: "車載モーター(e-Axle)。中国EV向けの価格競争が論点" },
+  { id: "yokohama-rubber", name: "横浜ゴム", code: "5101.T", exchange: "東証P", region: "日本", country: "日本", layer: "TIER1", position: "タイヤ。オフハイウェイ(農建機)比率を高めている" },
+  { id: "toyo-tire", name: "TOYO TIRE", code: "5105.T", exchange: "東証P", region: "日本", country: "日本", layer: "TIER1", position: "タイヤ。北米ピックアップ・SUV向けの比重が大きい" },
+  { id: "toyota-boshoku", name: "トヨタ紡織", code: "3116.T", exchange: "東証P", region: "日本", country: "日本", layer: "TIER1", position: "シート・内装。トヨタ系" },
+  { id: "ts-tech", name: "テイ・エス テック", code: "7313.T", exchange: "東証P", region: "日本", country: "日本", layer: "TIER1", position: "シート。ホンダ系で二輪シートも" },
+  { id: "tokai-rika", name: "東海理化", code: "6995.T", exchange: "東証P", region: "日本", country: "日本", layer: "TIER1", position: "スイッチ・シフト・スマートキー" },
+  { id: "nok", name: "NOK", code: "7240.T", exchange: "東証P", region: "日本", country: "日本", layer: "TIER1", position: "オイルシール世界首位級。FPC(電子部品)も持つ" },
+  { id: "exedy", name: "エクセディ", code: "7278.T", exchange: "東証P", region: "日本", country: "日本", layer: "TIER1", position: "クラッチ・トルコン。電動化で構造転換を迫られる側" },
+  { id: "musashi", name: "武蔵精密工業", code: "7220.T", exchange: "東証P", region: "日本", country: "日本", layer: "TIER1", position: "ギア・デフ。ホンダ系" },
+  { id: "futaba", name: "フタバ産業", code: "7241.T", exchange: "東証P", region: "日本", country: "日本", layer: "TIER1", position: "排気系・車体プレス。トヨタ系" },
+  { id: "stanley", name: "スタンレー電気", code: "6923.T", exchange: "東証P", region: "日本", country: "日本", layer: "TIER1", position: "自動車照明。小糸に次ぐ国内2位級" },
+  { id: "niterra", name: "ニテラ(日本特殊陶業)", code: "5334.T", exchange: "東証P", region: "日本", country: "日本", layer: "TIER1", position: "点火プラグ・排気センサ。内燃機関依存からの転換が論点" },
+  { id: "daido-metal", name: "大同メタル工業", code: "7245.T", exchange: "東証P", region: "日本", country: "日本", layer: "TIER1", position: "すべり軸受。エンジン部品の比重が高い" },
 
   { id: "aptiv", name: "Aptiv", code: "APTV", exchange: "NYSE", region: "米国", country: "アイルランド/米国", layer: "TIER1", position: "電装アーキテクチャ。SDV配線の集約で中心的" },
   { id: "borgwarner", name: "BorgWarner", code: "BWA", exchange: "NYSE", region: "米国", country: "米国", layer: "TIER1", position: "パワートレイン。内燃機関からEV部品へ転換中" },
@@ -142,6 +155,9 @@ export const COMPANIES: Company[] = [
   { id: "rohm", name: "ローム", code: "6963.T", exchange: "東証P", region: "日本", country: "日本", layer: "SEMI", position: "SiCパワー半導体。EV向け投資が先行している" },
   { id: "mitsubishi-electric", name: "三菱電機", code: "6503.T", exchange: "東証P", region: "日本", country: "日本", layer: "SEMI", position: "パワー半導体と車載機器の両方を持つ" },
   { id: "murata", name: "村田製作所", code: "6981.T", exchange: "東証P", region: "日本", country: "日本", layer: "SEMI", position: "MLCC。EV1台あたりの搭載数が内燃機関車より多い" },
+  { id: "sanken", name: "サンケン電気", code: "6707.T", exchange: "東証P", region: "日本", country: "日本", layer: "SEMI", position: "パワー半導体。車載向けの比重を高めている" },
+  { id: "tdk", name: "TDK", code: "6762.T", exchange: "東証P", region: "日本", country: "日本", layer: "SEMI", position: "受動部品・磁気センサ。車載用電池(小型)も" },
+  { id: "kyocera", name: "京セラ", code: "6971.T", exchange: "東証P", region: "日本", country: "日本", layer: "SEMI", position: "電子部品・パッケージ。車載カメラ関連も" },
   { id: "infineon", name: "Infineon", code: "IFX.DE", exchange: "XETRA", region: "欧州", country: "ドイツ", layer: "SEMI", position: "車載パワー半導体で世界首位" },
   { id: "nxp", name: "NXP Semiconductors", code: "NXPI", exchange: "NASDAQ", region: "欧州", country: "オランダ", layer: "SEMI", position: "車載プロセッサ・ネットワーク" },
   { id: "st", name: "STMicroelectronics", code: "STM", exchange: "NYSE", region: "欧州", country: "スイス/仏伊", layer: "SEMI", position: "SiC。Tesla向けの比重が大きい" },
@@ -160,14 +176,28 @@ export const COMPANIES: Company[] = [
   { id: "hesai", name: "Hesai(禾賽科技)", code: "HSAI", exchange: "NASDAQ", region: "中国", country: "中国", layer: "SOFTWARE", position: "LiDAR出荷数量で世界首位級。価格低下が速い" },
   { id: "horizon-robotics", name: "Horizon Robotics(地平線)", code: "9660.HK", exchange: "HKEX", region: "中国", country: "中国", layer: "SOFTWARE", position: "車載AIチップ。中国OEMでの採用が広い" },
   { id: "elektrobit", name: "Elektrobit", code: null, exchange: null, region: "欧州", country: "ドイツ", layer: "SOFTWARE", position: "非上場(Continental傘下)。車載基盤ソフト" },
-  { id: "denso-ten", name: "アイシン/デンソー系ソフト", code: null, exchange: null, region: "日本", country: "日本", layer: "SOFTWARE", position: "非上場。日本勢のSDV基盤ソフトは各社内製が中心" },
+
+  // 日本のSDV/自動運転は自動車専業ではなく総合電機・IT側が担っている。
+  // 「自動車株」で探すと漏れるが、車載が伸びれば効いてくる企業をここに置く。
+  // 売上に占める車載比率は各社まちまちなので、株価の動きをそのまま
+  // 自動車要因と読まないこと。
+  { id: "hitachi", name: "日立製作所", code: "6501.T", exchange: "東証P", region: "日本", country: "日本", layer: "SOFTWARE", position: "日立Astemo(車載)とSDV基盤。全社に占める車載比率は限定的" },
+  { id: "sony", name: "ソニーグループ", code: "6758.T", exchange: "東証P", region: "日本", country: "日本", layer: "SOFTWARE", position: "車載イメージセンサ首位級。ソニー・ホンダモビリティも" },
+  { id: "fujitsu", name: "富士通", code: "6702.T", exchange: "東証P", region: "日本", country: "日本", layer: "SOFTWARE", position: "車載向けソフト・MaaS基盤" },
+  { id: "nec", name: "NEC", code: "6701.T", exchange: "東証P", region: "日本", country: "日本", layer: "SOFTWARE", position: "車載ソフト・V2X。生体認証を車載に展開" },
+  { id: "pksha", name: "PKSHA Technology", code: "3993.T", exchange: "東証P", region: "日本", country: "日本", layer: "SOFTWARE", position: "AIアルゴリズム。自動運転向けの提供実績がある" },
+  { id: "tier4", name: "ティアフォー", code: null, exchange: null, region: "日本", country: "日本", layer: "SOFTWARE", position: "非上場。自動運転OSS(Autoware)の中心。国産エッジAI半導体にも参画" },
 
   // ── 素材・製造装置 ──────────────────────────────────────────
-  { id: "nipponsteel", name: "日本製鉄", code: "5401.T", exchange: "東証P", region: "日本", country: "日本", layer: "MATERIAL", position: "自動車向け高張力鋼板。OEMの生産計画が業績に波及", held: true },
+  { id: "nipponsteel", name: "日本製鉄", code: "5401.T", exchange: "東証P", region: "日本", country: "日本", layer: "MATERIAL", position: "自動車向け高張力鋼板。OEMの生産計画が業績に波及" },
   { id: "kobe-steel", name: "神戸製鋼所", code: "5406.T", exchange: "東証P", region: "日本", country: "日本", layer: "MATERIAL", position: "アルミ・鋼材。車体軽量化で採用が広がる" },
   { id: "toray", name: "東レ", code: "3402.T", exchange: "東証P", region: "日本", country: "日本", layer: "MATERIAL", position: "炭素繊維。電池セパレータも" },
   { id: "asahi-kasei", name: "旭化成", code: "3407.T", exchange: "東証P", region: "日本", country: "日本", layer: "MATERIAL", position: "電池セパレータで世界首位級" },
   { id: "sumitomo-metal-mining", name: "住友金属鉱山", code: "5713.T", exchange: "東証P", region: "日本", country: "日本", layer: "MATERIAL", position: "電池正極材。ニッケル権益も持つ" },
+  { id: "agc", name: "AGC", code: "5201.T", exchange: "東証P", region: "日本", country: "日本", layer: "MATERIAL", position: "自動車ガラス。ヘッドアップディスプレイ対応品も" },
+  { id: "sekisui-chemical", name: "積水化学工業", code: "4204.T", exchange: "東証P", region: "日本", country: "日本", layer: "MATERIAL", position: "合わせガラス用中間膜で世界首位級" },
+  { id: "mitsui-chemicals", name: "三井化学", code: "4183.T", exchange: "東証P", region: "日本", country: "日本", layer: "MATERIAL", position: "自動車用樹脂・エラストマー" },
+  { id: "dowa", name: "DOWAホールディングス", code: "5714.T", exchange: "東証P", region: "日本", country: "日本", layer: "MATERIAL", position: "触媒用貴金属リサイクル・車載向け電子材料" },
   { id: "albemarle", name: "Albemarle", code: "ALB", exchange: "NYSE", region: "米国", country: "米国", layer: "MATERIAL", position: "リチウム。EV需要の減速がそのまま市況に出る" },
   { id: "posco-future-m", name: "POSCO Future M", code: "003670.KS", exchange: "KRX", region: "韓国", country: "韓国", layer: "MATERIAL", position: "正極・負極材" },
   { id: "ganfeng", name: "贛鋒鋰業", code: "1772.HK", exchange: "HKEX", region: "中国", country: "中国", layer: "MATERIAL", position: "リチウム大手" },

@@ -14,6 +14,14 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* 銘柄を選ぶとニュース欄の中身が入れ替わり、ページの高さが変わる。
+   スクロールバーが出たり消えたりすると表示幅そのものが変わるため、
+   ニュースの多い銘柄と少ない銘柄を続けて押すと画面が横に揺れていた。
+   常にスクロールバーぶんの余白を確保して、幅を固定する。 */
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

@@ -1,14 +1,8 @@
-import { readdir, readFile } from "node:fs/promises";
-import path from "node:path";
 import { COMPANIES } from "./companies";
 
-// 隣のフォルダ auto-industry-watcher が毎朝ためている JSONL を、ファイルとして
-// 直接読む。stock-trading-app が ../market-briefing を読んでいるのと同じ方式で、
-// GitHub API ではないのでトークンは要らない。
-//
-// あちらの収集エージェントは「既存行を書き換えない・追記のみ」という規約で動いて
-// いるので、こちらは読み取り専用に徹する。**このアプリから data/news/ に書かない。**
-const NEWS_DIR = path.join(process.cwd(), "..", "auto-industry-watcher", "data", "news");
+// このファイルはクライアントからも読まれる（型と定数を共有するため）ので、
+// node:fs などサーバー専用のモジュールを import してはいけない。
+// 実ファイルの読み取りは news.server.ts 側にある。
 
 /** auto-industry-watcher の auto-news-collector が書くレコード。 */
 export type NewsRecord = {
@@ -30,6 +24,16 @@ export type NewsRecord = {
 /** UI に渡す形。どの監視対象企業に紐づくかを解決済みにしてある。 */
 export type NewsItem = NewsRecord & { companyIds: string[] };
 
+/**
+ * 何日前までを「今の話」として扱うか。
+ *
+ * これより古い記事は読み込み時点で捨てる。銘柄カードの `news N` バッジは
+ * 「この企業に今何か起きている」の合図なので、2か月前の記事で点灯しても
+ * 意味がない（むしろ最近動きのある企業を見分けられなくなる）。
+ * 古い記事を遡って読みたい場合は auto-industry-watcher の JSONL を直接見る。
+ */
+export const RECENT_DAYS = 60;
+
 // ニュース側の tickers は "7203" のような素の証券コードだが、こちらの code は
 // Yahoo シンボル "7203.T" なので、そのままでは突き合わせられない。
 const BY_TICKER_PREFIX = new Map<string, string>();
@@ -49,9 +53,14 @@ const NAME_ALIASES: Record<string, string> = {
   ゼネラルモーターズ: "gm",
   テスラ: "tesla",
   "BYD Company": "byd",
+  日立: "hitachi",
+  日立製作所: "hitachi",
+  ソニー: "sony",
+  トーヨータイヤ: "toyo-tire",
+  日本特殊陶業: "niterra",
 };
 
-function resolveCompanyIds(rec: NewsRecord): string[] {
+export function resolveCompanyIds(rec: NewsRecord): string[] {
   const ids = new Set<string>();
   for (const t of rec.tickers ?? []) {
     const id = BY_TICKER_PREFIX.get(t);
@@ -62,43 +71,4 @@ function resolveCompanyIds(rec: NewsRecord): string[] {
     if (id) ids.add(id);
   }
   return Array.from(ids);
-}
-
-/**
- * 直近のニュースを新しい順に返す。
- *
- * auto-industry-watcher が無い／まだ1件も収集していない環境でも、このアプリ自体は
- * 株価だけで成立する。そのため読めない場合は throw せず空配列を返す。
- */
-export async function loadRecentNews(limit = 60): Promise<NewsItem[]> {
-  let files: string[];
-  try {
-    files = (await readdir(NEWS_DIR)).filter((f) => f.endsWith(".jsonl")).sort().reverse();
-  } catch {
-    return [];
-  }
-
-  const items: NewsItem[] = [];
-  // ファイルは YYYY-MM.jsonl なので、新しい月から読めば limit 件に早く到達する。
-  for (const file of files) {
-    let raw: string;
-    try {
-      raw = await readFile(path.join(NEWS_DIR, file), "utf8");
-    } catch {
-      continue;
-    }
-    for (const line of raw.split("\n")) {
-      const trimmed = line.trim();
-      if (!trimmed) continue;
-      try {
-        const rec = JSON.parse(trimmed) as NewsRecord;
-        items.push({ ...rec, companyIds: resolveCompanyIds(rec) });
-      } catch {
-        // 1行が壊れていても残りは読めるので、その行だけ捨てる。
-      }
-    }
-    if (items.length >= limit * 2) break;
-  }
-
-  return items.sort((a, b) => b.date.localeCompare(a.date)).slice(0, limit);
 }

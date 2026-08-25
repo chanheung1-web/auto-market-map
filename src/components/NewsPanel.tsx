@@ -5,6 +5,8 @@ import type { NewsItem } from "@/lib/news";
 
 type Props = {
   news: NewsItem[];
+  /** 収集対象にしている日数。空状態の説明に使う。 */
+  recentDays: number;
   /** 銘柄を選んでいるときは、その企業に紐づくニュースだけに絞る。 */
   filterCompanyId: string | null;
   filterCompanyName: string | null;
@@ -24,7 +26,7 @@ function hostOf(url: string): string {
   }
 }
 
-export function NewsPanel({ news, filterCompanyId, filterCompanyName }: Props) {
+export function NewsPanel({ news, recentDays, filterCompanyId, filterCompanyName }: Props) {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const shown = filterCompanyId
@@ -45,14 +47,15 @@ export function NewsPanel({ news, filterCompanyId, filterCompanyName }: Props) {
       <p className="text-xs text-zinc-500">
         {filterCompanyName
           ? `${filterCompanyName} に紐づくニュース ${shown.length}件`
-          : `直近 ${shown.length}件`}
-        （auto-industry-watcher の収集分）
+          : `${shown.length}件`}
+        （auto-industry-watcher が収集した直近{recentDays}日ぶん）
       </p>
 
       {shown.length === 0 && (
         <p className="rounded-lg border border-zinc-800 bg-zinc-900 p-3 text-sm text-zinc-400">
-          この企業に紐づく収集済みニュースはありません。監視対象の tier によっては
-          そもそも個別に収集されていないことがあります。
+          直近{recentDays}日にこの企業へ紐づくニュースはありません。
+          auto-industry-watcher は監視対象の tier によって収集の深さを変えているため、
+          watch 階層の企業は業界インパクトの大きい報道しか拾われません。
         </p>
       )}
 

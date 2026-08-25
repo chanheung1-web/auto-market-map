@@ -1,6 +1,8 @@
 "use client";
 
 import { LAYER_LABELS, LAYER_ORDER, type Company, type Layer } from "@/lib/companies";
+import type { PortfolioLink } from "@/lib/portfolio";
+import { normalizeCode } from "@/lib/portfolio";
 import { formatPercent } from "@/lib/regions";
 import type { Quote } from "@/lib/yahooFinance";
 
@@ -8,8 +10,11 @@ type Props = {
   companies: Company[];
   quotes: Map<string, Quote>;
   newsCountByCompany: Map<string, number>;
+  portfolio: PortfolioLink | null;
+  addedIds: Set<string>;
   selectedCompanyId: string | null;
   onSelectCompany: (id: string | null) => void;
+  onRemoveCompany: (id: string) => void;
 };
 
 function changeClass(v: number | null | undefined): string {
@@ -30,8 +35,11 @@ export function ValueChainSection({
   companies,
   quotes,
   newsCountByCompany,
+  portfolio,
+  addedIds,
   selectedCompanyId,
   onSelectCompany,
+  onRemoveCompany,
 }: Props) {
   return (
     <div className="space-y-6">
@@ -62,42 +70,75 @@ export function ValueChainSection({
                 const q = c.code ? quotes.get(c.code) : undefined;
                 const newsCount = newsCountByCompany.get(c.id) ?? 0;
                 const isSelected = selectedCompanyId === c.id;
+
+                const key = c.code ? normalizeCode(c.code) : null;
+                const heldQty = key ? portfolio?.heldQuantityByCode[key] : undefined;
+                const watched = key ? portfolio?.watchedCodes.includes(key) : false;
+
                 return (
-                  <button
+                  <div
                     key={c.id}
-                    type="button"
-                    onClick={() => onSelectCompany(isSelected ? null : c.id)}
-                    className={`flex w-full items-center gap-2 px-2 py-2 text-left transition sm:px-3 ${
+                    className={`flex items-center gap-2 ${
                       i > 0 ? "border-t border-zinc-800" : ""
                     } ${isSelected ? "bg-sky-950/60" : "hover:bg-zinc-800/50"}`}
                   >
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-1.5">
-                        <span className="truncate text-sm text-zinc-100">{c.name}</span>
-                        {c.held && (
-                          <span className="shrink-0 rounded bg-amber-900/70 px-1 text-[10px] text-amber-200">
-                            保有
-                          </span>
-                        )}
-                        {newsCount > 0 && (
-                          <span className="shrink-0 rounded bg-zinc-700 px-1 text-[10px] text-zinc-200">
-                            news {newsCount}
-                          </span>
-                        )}
+                    <button
+                      type="button"
+                      onClick={() => onSelectCompany(isSelected ? null : c.id)}
+                      className="flex min-w-0 flex-1 items-center gap-2 px-2 py-2 text-left sm:px-3"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="truncate text-sm text-zinc-100">{c.name}</span>
+                          {heldQty !== undefined && (
+                            <span className="shrink-0 rounded bg-amber-900/70 px-1 text-[10px] text-amber-200">
+                              保有 {heldQty}
+                            </span>
+                          )}
+                          {watched && heldQty === undefined && (
+                            <span className="shrink-0 rounded bg-sky-900/70 px-1 text-[10px] text-sky-200">
+                              ウォッチ
+                            </span>
+                          )}
+                          {newsCount > 0 && (
+                            <span className="shrink-0 rounded bg-zinc-700 px-1 text-[10px] text-zinc-200">
+                              news {newsCount}
+                            </span>
+                          )}
+                        </div>
+                        <div className="truncate text-[11px] text-zinc-500">
+                          {c.country}
+                          {c.exchange ? ` · ${c.exchange}` : " · 非上場"} · {c.position}
+                        </div>
                       </div>
-                      <div className="truncate text-[11px] text-zinc-500">
-                        {c.country}
-                        {c.exchange ? ` · ${c.exchange}` : " · 非上場"} · {c.position}
-                      </div>
-                    </div>
 
-                    <div className="shrink-0 text-right" title={q?.currency ?? undefined}>
-                      <div className="text-sm tabular-nums text-zinc-200">{formatPrice(q)}</div>
-                      <div className={`text-xs tabular-nums ${changeClass(q?.changePercent)}`}>
-                        {c.code === null ? "非上場" : formatPercent(q?.changePercent ?? null)}
+                      {/* 幅を固定しないと、バッジの有無で価格列の位置が行ごとにずれて
+                          縦に読めなくなる。数字は右揃えで列として成立させる。 */}
+                      <div
+                        className="w-24 shrink-0 text-right sm:w-28"
+                        title={q?.currency ?? undefined}
+                      >
+                        <div className="text-sm tabular-nums text-zinc-200">{formatPrice(q)}</div>
+                        <div className={`text-xs tabular-nums ${changeClass(q?.changePercent)}`}>
+                          {c.code === null ? "非上場" : formatPercent(q?.changePercent ?? null)}
+                        </div>
                       </div>
-                    </div>
-                  </button>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => onRemoveCompany(c.id)}
+                      title={
+                        addedIds.has(c.id)
+                          ? "追加した銘柄を削除する"
+                          : "この銘柄を監視対象から外す（あとで戻せます）"
+                      }
+                      className="shrink-0 px-2 py-2 text-xs text-zinc-600 transition hover:text-red-400"
+                      aria-label={`${c.name} を監視対象から外す`}
+                    >
+                      ✕
+                    </button>
+                  </div>
                 );
               })}
             </div>

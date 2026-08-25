@@ -1,4 +1,4 @@
-import { loadRecentNews } from "@/lib/news";
+import { loadRecentNews } from "@/lib/news.server";
 
 export async function GET() {
   const news = await loadRecentNews();

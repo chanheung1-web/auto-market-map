@@ -42,6 +42,59 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 `code: null` は非上場・取得不可を表す。株価も地図の集計にも入らないが、
 ボッシュ・ZFのように業界構造の理解に外せない企業は一覧に残す。
 
+## サーバー専用コードは `*.server.ts` に分ける
+
+`node:fs` を使うモジュールをクライアントコンポーネントから import すると、
+Turbopack が `the chunking context does not support external modules (request: node:fs/promises)`
+で**ビルドごと落ちる**（型だけの import なら消えるが、定数や関数を1つでも
+値として import した時点で巻き込まれる）。実際にこれで一度ビルドが壊れた。
+
+そのため対になるファイルに分けてある。
+
+| クライアントからも読む | サーバー専用 |
+|---|---|
+| `news.ts`（型・`RECENT_DAYS`・`resolveCompanyIds`） | `news.server.ts`（JSONL読み取り） |
+| `portfolio.ts`（型・`normalizeCode`） | `portfolio.server.ts`（holdings/watchlist読み取り） |
+| `topics.ts`（型） | `topics.server.ts`（Markdown読み取り） |
+
+`*.server.ts` の先頭には `import "server-only"` を置く。間違えて
+クライアントから import したとき、ビルドの謎エラーではなく
+「サーバー専用モジュールです」という明示的なエラーになる。
+
+## 日付は必ずローカルの暦日で組み立てる
+
+`new Date().toISOString().slice(0,10)` を日付の比較に使ってはいけない。
+UTCに変換されるため、**日本時間の早朝に実行すると1日前にずれる**
+（8/26 02:00 JST は UTC では 8/25）。実際にこれでニュースの足切りが
+1日ぶん緩くなっていた。JSONL の `date` もレポートのファイル名も
+日本時間の暦日なので、こちら側も `getFullYear()/getMonth()/getDate()` で
+組み立てて揃える（`news.server.ts` の `cutoffDate()` 参照）。
+
+## 保有・ウォッチは stock-trading-app が正本
+
+`portfolio.server.ts` が `../stock-trading-app/data/holdings.json` と
+`watchlist.json` を実行時に読む。**このアプリに保有情報を持たせないこと。**
+
+以前 `companies.ts` に `held: true` を静的に持っていたが、実際の保有と
+食い違った（トヨタ・日本製鉄を保有扱いにしていたが、実際の自動車関連の保有は
+日産・日立・NVIDIA だった）。あちらは PC と iPhone の両方から編集されるので、
+コピーを持った時点で必ず古くなる。
+
+コードの突き合わせは `normalizeCode()` で最初のドットより前を見る。
+保有側は素のコード（"7201"）、ウォッチリストには "005930.KS" のような
+サフィックス付きが混在し、こちらは Yahoo シンボル（"7201.T"）だから。
+
+## 監視対象は画面から追加・削除できる
+
+`data/custom-companies.json` がサーバー側の正本（`customCompanies.ts`）。
+ai-datacenter-tracker は同じ機能を localStorage でやっているが、こちらは
+**PC と iPhone の両方から使う**ので端末ごとに監視リストが変わると困る。
+
+- 追加は保存前に Yahoo でシンボルを検証する（`.T` の付け忘れが多いため）
+- 組み込み銘柄の削除は`removedIds`に入れる**非表示**であって実体は消さない
+  （コード側を更新したときに復活してしまうため）。非表示は画面から戻せる
+- 追加した銘柄の削除だけは実体を消すので戻せない
+
 ## auto-industry-watcher とは読み取り専用の関係
 
 `/api/news` が隣フォルダ `../auto-industry-watcher/data/news/*.jsonl` を
@@ -53,10 +106,25 @@ GitHub API ではないのでトークン不要）。
 隣フォルダが無くてもこのアプリは株価だけで成立する必要があるため、
 `loadRecentNews()` は読めないとき throw せず空配列を返す。
 
+読むものは2種類ある。**性格が違うので画面上も分けている。**
+
+| 何 | どこ | 画面 |
+|---|---|---|
+| 個別ニュース（1件＝1事実） | `data/news/*.jsonl` | 「個別ニュース」。銘柄で絞れる |
+| 編集済みダイジェスト（論点） | `reports/weekly/*.md`, `reports/daily/*.md` | 「重要トピック」。ページ上部 |
+
+週次レポートは「今週の3大トピック」まで人手で絞り込んだ結果なので、
+個別ニュースより読む価値が高い。だから上に置いている。
+
 ニュース側の `tickers` は素の証券コード（"7203"）、こちらの `code` は Yahoo
 シンボル（"7203.T"）なので、そのままでは突き合わせられない。
 `src/lib/news.ts` の `resolveCompanyIds()` が接頭辞と社名エイリアスで解決している。
 社名表記が食い違う分は `NAME_ALIASES` に足す。
+
+ニュースは**直近60日ぶんだけ**読む（`RECENT_DAYS`）。件数では打ち切らない。
+銘柄の `news N` バッジは「この企業に今何か起きている」の合図なので、
+2か月前の記事で点灯すると最近動きのある企業を見分けられなくなる。
+件数で打ち切ると「上限で消えた」のか「最近ニュースがない」のかも区別できなくなる。
 
 ## ポートは 3002
 
@@ -65,7 +133,15 @@ stock-trading-app が 3000、ai-datacenter-tracker が 3001 を使っている�
 ファイアウォールでプライベートプロファイル限定で 3002 を開ける必要がある
 （手順はワークスペース直下の CLAUDE.md を参照）。
 
-## モバイル前提
+## モバイル前提とレイアウトの揺れ
 
 iPhone / iPad から見る。地図のバッジは狭い画面で重なりやすいので、
 `REGION_POSITION` を触ったら必ず狭い幅で確認すること。
+
+`globals.css` の `scrollbar-gutter: stable` は消さないこと。
+銘柄を選ぶとニュース欄の中身が入れ替わってページの高さが変わり、
+スクロールバーが出たり消えたりして**画面が横に揺れていた**。
+
+一覧の価格列に `w-24 sm:w-28` の固定幅を入れているのも同じ理由で、
+「保有」「ウォッチ」「news N」バッジの有無で価格の位置が行ごとにずれると、
+数字を縦に読めなくなる。
