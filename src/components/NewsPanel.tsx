@@ -53,11 +53,17 @@ export function NewsPanel({ news, recentDays, filterCompanyId, filterCompanyName
       </p>
 
       {shown.length === 0 && (
-        <p className="rounded-lg border border-zinc-800 bg-zinc-900 p-3 text-sm text-zinc-400">
-          直近{recentDays}日にこの企業へ紐づくニュースはありません。
-          auto-industry-watcher は監視対象の tier によって収集の深さを変えているため、
-          watch 階層の企業は業界インパクトの大きい報道しか拾われません。
-        </p>
+        <div className="space-y-1 rounded-lg border border-zinc-800 bg-zinc-900 p-3 text-sm text-zinc-400">
+          <p>直近{recentDays}日にこの企業へ紐づくニュースはありません。</p>
+          {/* 「この一覧に足せば収集され始める」と誤解されやすいので明記する。
+              収集対象を決めているのは別プロジェクトで、こちらのリストではない。 */}
+          <p className="text-xs text-zinc-500">
+            ニュースを集めているのは隣の auto-industry-watcher で、収集対象は
+            あちらの <code>data/companies.json</code> で決まります。この画面に銘柄を
+            追加しても収集範囲は変わらず、すでに集まっているニュースとの
+            突き合わせだけが行われます。
+          </p>
+        </div>
       )}
 
       {shown.map((n) => {

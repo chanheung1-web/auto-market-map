@@ -61,6 +61,11 @@ export const COMPANIES: Company[] = [
   // 引けなくなっている）。代替シンボルも見つからないため、株価なしの構造データ
   // として残す。上場が再開されたら code を戻すこと。
   { id: "hino", name: "日野自動車", code: null, exchange: null, region: "日本", country: "日本", layer: "OEM", position: "商用車。三菱ふそうとの統合。東証シンボルは取得不可" },
+  // 以下は非上場だが、収集済みニュースに繰り返し出てくる。株価は無くても
+  // 「この会社の話がいま何件あるか」が見えるほうが役に立つので載せる。
+  { id: "daihatsu", name: "ダイハツ工業", code: null, exchange: null, region: "日本", country: "日本", layer: "OEM", position: "非上場(トヨタ完全子会社)。軽自動車。トヨタの連結販売台数に含まれる" },
+  { id: "fuso", name: "三菱ふそうトラック・バス", code: null, exchange: null, region: "日本", country: "日本", layer: "OEM", position: "非上場(ダイムラー系)。日野との統合が進行" },
+  { id: "udtrucks", name: "UDトラックス", code: null, exchange: null, region: "日本", country: "日本", layer: "OEM", position: "非上場(いすゞ傘下)。商用車" },
 
   { id: "gm", name: "General Motors", code: "GM", exchange: "NYSE", region: "米国", country: "米国", layer: "OEM", position: "北米ピックアップの収益がEV投資を支える構造" },
   { id: "ford", name: "Ford", code: "F", exchange: "NYSE", region: "米国", country: "米国", layer: "OEM", position: "Model e(EV)の赤字幅とPro(商用)の利益が対照的" },
@@ -121,6 +126,7 @@ export const COMPANIES: Company[] = [
   { id: "stanley", name: "スタンレー電気", code: "6923.T", exchange: "東証P", region: "日本", country: "日本", layer: "TIER1", position: "自動車照明。小糸に次ぐ国内2位級" },
   { id: "niterra", name: "ニテラ(日本特殊陶業)", code: "5334.T", exchange: "東証P", region: "日本", country: "日本", layer: "TIER1", position: "点火プラグ・排気センサ。内燃機関依存からの転換が論点" },
   { id: "daido-metal", name: "大同メタル工業", code: "7245.T", exchange: "東証P", region: "日本", country: "日本", layer: "TIER1", position: "すべり軸受。エンジン部品の比重が高い" },
+  { id: "topy", name: "トピー工業", code: "7231.T", exchange: "東証P", region: "日本", country: "日本", layer: "TIER1", position: "自動車用ホイール・鋼材" },
 
   { id: "aptiv", name: "Aptiv", code: "APTV", exchange: "NYSE", region: "米国", country: "アイルランド/米国", layer: "TIER1", position: "電装アーキテクチャ。SDV配線の集約で中心的" },
   { id: "borgwarner", name: "BorgWarner", code: "BWA", exchange: "NYSE", region: "米国", country: "米国", layer: "TIER1", position: "パワートレイン。内燃機関からEV部品へ転換中" },
@@ -148,6 +154,7 @@ export const COMPANIES: Company[] = [
   { id: "lges", name: "LGエナジーソリューション", code: "373220.KS", exchange: "KRX", region: "韓国", country: "韓国", layer: "BATTERY", position: "車載電池。北米でOEMとの合弁が多い" },
   { id: "samsung-sdi", name: "サムスンSDI", code: "006400.KS", exchange: "KRX", region: "韓国", country: "韓国", layer: "BATTERY", position: "車載電池。角形・全固体の開発で先行" },
   { id: "skon", name: "SK On", code: null, exchange: null, region: "韓国", country: "韓国", layer: "BATTERY", position: "非上場(SKイノベーション傘下)。車載電池" },
+  { id: "ppes", name: "プライムプラネットエナジー&ソリューションズ", code: null, exchange: null, region: "日本", country: "日本", layer: "BATTERY", position: "非上場(トヨタ・パナソニック合弁)。車載電池" },
   { id: "quantumscape", name: "QuantumScape", code: "QS", exchange: "NYSE", region: "米国", country: "米国", layer: "BATTERY", position: "全固体電池。VWと提携。量産前の研究開発段階" },
 
   // ── 車載半導体 ──────────────────────────────────────────────
@@ -187,6 +194,8 @@ export const COMPANIES: Company[] = [
   { id: "nec", name: "NEC", code: "6701.T", exchange: "東証P", region: "日本", country: "日本", layer: "SOFTWARE", position: "車載ソフト・V2X。生体認証を車載に展開" },
   { id: "pksha", name: "PKSHA Technology", code: "3993.T", exchange: "東証P", region: "日本", country: "日本", layer: "SOFTWARE", position: "AIアルゴリズム。自動運転向けの提供実績がある" },
   { id: "tier4", name: "ティアフォー", code: null, exchange: null, region: "日本", country: "日本", layer: "SOFTWARE", position: "非上場。自動運転OSS(Autoware)の中心。国産エッジAI半導体にも参画" },
+  // 6773.T は 404（2019年に上場廃止）。ニュースには繰り返し出るため残す。
+  { id: "pioneer", name: "パイオニア", code: null, exchange: null, region: "日本", country: "日本", layer: "SOFTWARE", position: "非上場。車載ナビ。BtoC撤退しOEM供給へ集中" },
 
   // ── 素材・製造装置 ──────────────────────────────────────────
   { id: "nipponsteel", name: "日本製鉄", code: "5401.T", exchange: "東証P", region: "日本", country: "日本", layer: "MATERIAL", position: "自動車向け高張力鋼板。OEMの生産計画が業績に波及" },

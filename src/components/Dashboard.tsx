@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { LAYER_LABELS, LAYER_ORDER, type Company, type Layer, type Region } from "@/lib/companies";
 import { RECENT_DAYS, type NewsItem } from "@/lib/news";
 import type { PortfolioLink } from "@/lib/portfolio";
@@ -181,6 +181,15 @@ export function Dashboard() {
 
   const selectedCompany = companyId ? companies.find((c) => c.id === companyId) ?? null : null;
 
+  // 銘柄を選んだらニュース欄まで運ぶ。バリューチェーンの一覧は数画面ぶんの
+  // 高さがあり、下の階層の銘柄を押したときはニュース欄が画面外にあるため、
+  // 押しても何も起きていないように見える。
+  const newsRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!companyId) return;
+    newsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [companyId]);
+
   // 全監視銘柄の平均。地域別の色が割れている日に「業界全体としてはどうだったのか」
   // を1つの数字で押さえるため。
   const overall = useMemo(() => {
@@ -300,7 +309,9 @@ export function Dashboard() {
         />
       </section>
 
-      <section>
+      {/* scroll-mt は上に少し余白を残すため。ぴったり上端に付けると
+          見出しが画面の縁に貼り付いて、どこに飛んだのか分かりにくい。 */}
+      <section ref={newsRef} id="news" className="scroll-mt-4">
         <h2 className="mb-3 flex items-center gap-2 text-base font-semibold text-zinc-100">
           個別ニュース
           {selectedCompany && (
