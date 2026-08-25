@@ -12,6 +12,43 @@ type Props = { weekly: TopicReport[]; daily: TopicReport[] };
  * 出てくる記法は見出し・箇条書き・表・強調に限られる。この範囲なら
  * ライブラリを足すより、必要なぶんだけ自前で処理したほうが依存が増えない。
  */
+function hostOf(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return url;
+  }
+}
+
+/**
+ * 素のURLをリンクにする。
+ *
+ * レポートは `（出典：https://... ／ 確度：確定）` の形で出典を本文に埋め込む。
+ * Markdown のリンク記法ではないので、そのままでは押せないただの文字列になる。
+ *
+ * 末尾の句読点・閉じ括弧はURLに含めない。日本語の文中に置かれると
+ * `https://example.com/a）` のように全角括弧がくっついて、リンク先が壊れる。
+ */
+const URL_PATTERN = /(https?:\/\/[^\s<>「」（）()｜|、。]+)/g;
+
+function linkify(text: string, keyPrefix: string) {
+  return text.split(URL_PATTERN).map((part, i) => {
+    if (!/^https?:\/\//.test(part)) return <span key={`${keyPrefix}-u${i}`}>{part}</span>;
+    return (
+      <a
+        key={`${keyPrefix}-u${i}`}
+        href={part}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="break-all text-sky-400 hover:underline"
+        title={part}
+      >
+        {hostOf(part)}
+      </a>
+    );
+  });
+}
+
 function renderInline(text: string, keyPrefix: string) {
   // **強調** だけ拾う。テンプレート上、論点の核はここに入る。
   return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) => {
@@ -22,7 +59,7 @@ function renderInline(text: string, keyPrefix: string) {
         </strong>
       );
     }
-    return <span key={`${keyPrefix}-${i}`}>{part}</span>;
+    return <span key={`${keyPrefix}-${i}`}>{linkify(part, `${keyPrefix}-${i}`)}</span>;
   });
 }
 
@@ -48,12 +85,19 @@ function Markdown({ source }: { source: string }) {
     // 週次の「各社の動き」表がこれに当たる。
     if (trimmed.startsWith("|")) {
       if (/^\|[\s|:-]+\|$/.test(trimmed)) continue;
-      const cells = trimmed.split("|").slice(1, -1).map((c) => c.trim());
+      const cells = trimmed
+        .split("|")
+        .slice(1, -1)
+        .map((c) => c.trim())
+        .filter(Boolean);
       blocks.push(
         <div key={i} className="border-l-2 border-zinc-700 py-0.5 pl-2 text-xs text-zinc-400">
-          {cells.filter(Boolean).map((c, ci) => (
-            <span key={ci} className={ci === 0 ? "font-medium text-zinc-200" : " / "}>
-              {ci === 0 ? c : ` / ${c}`}
+          {cells.map((c, ci) => (
+            <span key={ci}>
+              {ci > 0 && <span className="text-zinc-600"> / </span>}
+              <span className={ci === 0 ? "font-medium text-zinc-200" : undefined}>
+                {renderInline(c, `${i}-${ci}`)}
+              </span>
             </span>
           ))}
         </div>

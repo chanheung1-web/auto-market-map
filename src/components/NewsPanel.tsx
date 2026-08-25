@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { NewsItem } from "@/lib/news";
+import { tagColor } from "@/lib/tags";
 
 type Props = {
   news: NewsItem[];
@@ -63,30 +64,49 @@ export function NewsPanel({ news, recentDays, filterCompanyId, filterCompanyName
         const isOpen = expanded === n.id;
         return (
           <article key={n.id} className="rounded-lg border border-zinc-800 bg-zinc-900">
-            <button
-              type="button"
-              onClick={() => setExpanded(isOpen ? null : n.id)}
-              className="flex w-full items-start gap-2 p-3 text-left hover:bg-zinc-800/50"
-            >
-              <div className="min-w-0 flex-1">
-                <div className="mb-1 flex flex-wrap items-center gap-1.5">
-                  <span className="text-xs tabular-nums text-zinc-400">{n.date}</span>
-                  <span className={`rounded px-1 text-[10px] ${confidenceClass(n.confidence)}`}>
-                    {n.confidence}
+            <div className="p-3">
+              <div className="mb-1 flex flex-wrap items-center gap-1.5">
+                {/* 分類を先頭に置く。一覧をざっと流すとき、色の並びだけで
+                    「今日は規制の話が多い」といった偏りが見える。 */}
+                {n.tags.map((t) => (
+                  <span
+                    key={t}
+                    className={`rounded border px-1.5 py-0.5 text-[10px] ${tagColor(t)}`}
+                  >
+                    {t}
                   </span>
-                  {n.tags.map((t) => (
-                    <span key={t} className="rounded bg-zinc-800 px-1 text-[10px] text-zinc-300">
-                      {t}
-                    </span>
-                  ))}
-                  {n.follow_up_to && (
-                    <span className="rounded bg-sky-900/70 px-1 text-[10px] text-sky-200">続報</span>
-                  )}
-                </div>
-                <h4 className="text-sm text-zinc-100">{n.headline}</h4>
+                ))}
+                <span className={`rounded px-1 text-[10px] ${confidenceClass(n.confidence)}`}>
+                  {n.confidence}
+                </span>
+                {n.follow_up_to && (
+                  <span className="rounded bg-sky-900/70 px-1 text-[10px] text-sky-200">続報</span>
+                )}
               </div>
-              <span className="shrink-0 text-zinc-500">{isOpen ? "−" : "+"}</span>
-            </button>
+
+              {/* 見出しそのものを出典へのリンクにする。読むか決めた次の動作は
+                  ほぼ必ず「原文を開く」なので、開閉と別に一手を挟ませない。 */}
+              <a
+                href={n.primary_source}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-sm text-zinc-100 hover:text-sky-400 hover:underline"
+              >
+                {n.headline}
+              </a>
+
+              <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-zinc-500">
+                <span className="tabular-nums">{n.date}</span>
+                <span>{hostOf(n.primary_source)}</span>
+                <button
+                  type="button"
+                  onClick={() => setExpanded(isOpen ? null : n.id)}
+                  className="text-sky-400 hover:underline"
+                >
+                  {isOpen ? "閉じる" : "要約と論点"}
+                </button>
+              </div>
+            </div>
 
             {isOpen && (
               <div className="space-y-2 border-t border-zinc-800 px-3 py-2 text-sm">
@@ -95,14 +115,28 @@ export function NewsPanel({ news, recentDays, filterCompanyId, filterCompanyName
                   <span className="text-zinc-500">論点: </span>
                   {n.impact}
                 </p>
-                <a
-                  href={n.primary_source}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-block text-xs text-sky-400 hover:underline"
-                >
-                  出典: {hostOf(n.primary_source)}
-                </a>
+                <div className="flex flex-wrap gap-x-3 gap-y-1">
+                  <a
+                    href={n.primary_source}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-sky-400 hover:underline"
+                  >
+                    出典: {hostOf(n.primary_source)}
+                  </a>
+                  {/* 重複排除で束ねた他媒体。裏を取りたいときに要る。 */}
+                  {(n.related_urls ?? []).map((url) => (
+                    <a
+                      key={url}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-zinc-400 hover:text-sky-400 hover:underline"
+                    >
+                      関連: {hostOf(url)}
+                    </a>
+                  ))}
+                </div>
               </div>
             )}
           </article>

@@ -14,6 +14,8 @@ import { TopicsPanel } from "./TopicsPanel";
 import { ValueChainSection } from "./ValueChainSection";
 
 const REFRESH_MS = 60_000;
+/** 保有・ウォッチの読み直し間隔。stock-trading-app 側の編集を拾うため。 */
+const PORTFOLIO_REFRESH_MS = 5 * 60_000;
 
 type HiddenCompany = { id: string; name: string };
 
@@ -50,20 +52,30 @@ export function Dashboard() {
   };
 
   // 監視対象は画面から追加・削除できるので、静的インポートではなくサーバーから読む。
+  //
+  // 定期的に読み直しているのは保有・ウォッチのため。正本は stock-trading-app 側に
+  // あり、そちらで売買を記録してもこのアプリは何も知らない。株価ほど頻繁に
+  // 変わるものではないので、60秒ではなく5分間隔にしている。
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/companies")
-      .then((res) => res.json())
-      .then((data: CompaniesResponse) => {
-        if (cancelled) return;
-        applyCompanies(data.companies, data.addedIds, data.hidden);
-        setPortfolio(data.portfolio);
-      })
-      .catch(() => {
-        if (!cancelled) setError("監視対象の読み込みに失敗しました");
-      });
+
+    const load = () =>
+      fetch("/api/companies")
+        .then((res) => res.json())
+        .then((data: CompaniesResponse) => {
+          if (cancelled) return;
+          applyCompanies(data.companies, data.addedIds, data.hidden);
+          setPortfolio(data.portfolio);
+        })
+        .catch(() => {
+          if (!cancelled) setError("監視対象の読み込みに失敗しました");
+        });
+
+    load();
+    const timer = setInterval(load, PORTFOLIO_REFRESH_MS);
     return () => {
       cancelled = true;
+      clearInterval(timer);
     };
   }, []);
 

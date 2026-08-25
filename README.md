@@ -39,13 +39,26 @@ start-app.bat
 ## 銘柄の追加・削除
 
 「＋ 銘柄を追加」から、この画面で監視対象を増やせる。
-保存前に Yahoo でシンボルを検証するので、`.T` の付け忘れはその場で弾かれる。
+**社名でも証券コードでも検索できる**（「東海理化」「6995」「Aptiv」いずれも可）。
+検索結果から選ぶ方式なので、シンボルを手打ちする必要はない。
 
 - 追加した銘柄の `✕` は**実体を削除**する（戻せない）
 - 組み込み銘柄の `✕` は**非表示**にするだけで、一覧上部の「非表示中」から戻せる
 
 保存先は `data/custom-companies.json`（サーバー側）。
 localStorage ではないので、PCで追加した銘柄は iPhone からも見える。
+
+## iPhone / iPad から見る
+
+1回だけ管理者権限で:
+
+```
+powershell -ExecutionPolicy Bypass -File setup-firewall.ps1
+```
+
+そのあと `start-app.bat` を実行しておけば、iPhone から
+`http://desktop-2v0387k:3002`（繋がらなければ `http://100.113.78.45:3002`）で開ける。
+Tailscale 経由のみ通り、物理ネットワーク側は閉じたまま。
 
 ## データの出どころ
 
@@ -54,7 +67,7 @@ localStorage ではないので、PCで追加した銘柄は iPhone からも見
 | 株価・騰落率 | Yahoo Finance の非公式 chart API（キー不要） | 60秒ごと |
 | 個別ニュース | `../auto-industry-watcher/data/news/*.jsonl` | 初回のみ・直近60日 |
 | 重要トピック | `../auto-industry-watcher/reports/{weekly,daily}/*.md` | 初回のみ |
-| 保有・ウォッチ | `../stock-trading-app/data/{holdings,watchlist}.json` | 初回のみ |
+| 保有・ウォッチ | `../stock-trading-app/data/{holdings,watchlist}.json` | 5分ごと |
 | 銘柄マスタ | `src/lib/companies.ts` ＋ `data/custom-companies.json` | 手動 |
 
 いずれも隣フォルダをファイルとして直接読んでいる（GitHub API ではないのでトークン不要）。
