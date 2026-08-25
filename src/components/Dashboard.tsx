@@ -211,7 +211,11 @@ export function Dashboard() {
   }, [visibleCompanies, quotes]);
 
   return (
-    <main className="mx-auto max-w-5xl p-3 sm:p-6">
+    // w-full を外さないこと。body が `flex flex-col`（create-next-app の既定）
+    // なので main は flex アイテムであり、cross軸のマージンが auto（mx-auto）だと
+    // ストレッチが無効になって幅が max-content になる。実機の iPhone で
+    // 390px の画面に 641px のページが出て、横スクロールしないと文字が読めなかった。
+    <main className="mx-auto w-full max-w-5xl p-3 sm:p-6">
       {/* 固定ナビ。負のマージンで親の余白ぶん外へ広げ、スクロール時に
           背景が透けないよう端まで塗る。 */}
       <div className="sticky top-0 z-30 -mx-3 mb-4 border-b border-zinc-800 bg-zinc-950/95 px-3 py-2 backdrop-blur sm:-mx-6 sm:px-6">

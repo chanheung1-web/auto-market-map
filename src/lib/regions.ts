@@ -8,15 +8,20 @@ export const REGION_ORDER: Region[] = ["米国", "欧州", "日本", "韓国", "
 // パーセントに 1:1 で対応する）。stock-trading-app の GlobalMarketSummary から
 // 座標を引き継ぎ、インドを追加した。
 //
-// 日本・韓国・中国は真の縮尺だとバッジが重なって読めないため、実際の相対方位
-// （日本は韓国の東、韓国は中国の北）を保ったまま離してある。
-export const REGION_POSITION: Record<Region, { left: string; top: string }> = {
-  米国: { left: "31%", top: "25%" },
-  欧州: { left: "53%", top: "20%" },
-  韓国: { left: "80%", top: "16%" },
-  日本: { left: "92%", top: "24%" },
-  中国: { left: "70%", top: "33%" },
-  インド: { left: "64%", top: "45%" },
+// 真の縮尺だと東アジアの3つ（日本・韓国・中国）がバッジとして重なって読めないため、
+// 実際の相対方位（日本は韓国の東、韓国は中国の北、インドは中国の南西）を保ったまま
+// 離してある。**位置は正確さより可読性を優先している。**
+//
+// 幅の狭い画面ではさらに散らす。iPhone(390px)の実測でバッジ同士が重なっていたため、
+// モバイル側の座標を別に持ち、地図も縦長（aspect-[3/2]）にして縦の余地を作っている。
+// Tailwind はクラス名を静的に解析するので、動的に組み立てず文字列で持つこと。
+export const REGION_POSITION: Record<Region, string> = {
+  米国: "left-[26%] top-[26%] sm:left-[31%] sm:top-[25%]",
+  欧州: "left-[49%] top-[15%] sm:left-[53%] sm:top-[20%]",
+  韓国: "left-[72%] top-[13%] sm:left-[80%] sm:top-[16%]",
+  日本: "left-[91%] top-[26%] sm:left-[92%] sm:top-[24%]",
+  中国: "left-[67%] top-[38%] sm:left-[71%] sm:top-[31%]",
+  インド: "left-[48%] top-[62%] sm:left-[60%] sm:top-[50%]",
 };
 
 export type RegionSummary = {

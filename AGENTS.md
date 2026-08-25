@@ -180,8 +180,33 @@ input にフォーカスすると**画面を勝手にズームする**ため、�
 
 ## モバイル前提とレイアウトの揺れ
 
-iPhone / iPad から見る。地図のバッジは狭い画面で重なりやすいので、
-`REGION_POSITION` を触ったら必ず狭い幅で確認すること。
+iPhone / iPad から見る。
+
+### `main` の `w-full` を外さないこと
+
+`body` は `min-h-full flex flex-col`（create-next-app の既定）なので `main` は
+flex アイテムになる。cross軸のマージンが auto（`mx-auto`）だと**ストレッチが
+無効になり、幅が max-content になる**。実機の iPhone で 390px の画面に
+641px のページが描かれ、横スクロールしないと文字が読めない状態になっていた。
+
+`mx-auto max-w-5xl` に `w-full` を足して固定してある。同じ組み合わせを
+別のところで書くときも `w-full` を忘れないこと。
+
+### 地図のバッジは実測で確かめる
+
+`REGION_POSITION` はモバイルとsmブレークポイントで**別々の座標**を持つ。
+真の縮尺だと東アジアが団子になるうえ、狭い画面ではさらに散らさないと重なる。
+地図自体もモバイルだけ縦長（`aspect-[3/2]`）にして縦の余地を作っている。
+
+座標を触ったら**目視ではなく実測**すること。Playwright が使える:
+
+```js
+// iPhone幅で全バッジの矩形を取り、交差しているペアを列挙する
+const btns = [...document.querySelectorAll('#map button[aria-pressed]')];
+```
+
+Tailwind はクラス名を静的解析するので、座標を動的に組み立ててはいけない
+（`left-[${x}%]` は効かない）。文字列として持つこと。
 
 `globals.css` の `scrollbar-gutter: stable` は消さないこと。
 銘柄を選ぶとニュース欄の中身が入れ替わってページの高さが変わり、

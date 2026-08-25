@@ -12,21 +12,22 @@ type Props = {
 
 export function RegionMap({ summaries, selected, onSelect }: Props) {
   return (
-    <div className="relative aspect-[2/1] w-full overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900">
+    // 狭い画面では縦長にする。バッジを縦に離す余地がないと東アジアが団子になる。
+    <div className="relative aspect-[3/2] w-full overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900 sm:aspect-[2/1]">
       <WorldMapSilhouette />
 
       {summaries.map((s) => {
-        const pos = REGION_POSITION[s.region];
         const isSelected = selected === s.region;
         return (
           <button
             key={s.region}
             type="button"
             onClick={() => onSelect(isSelected ? null : s.region)}
-            style={{ left: pos.left, top: pos.top }}
-            className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-md border px-1.5 py-1 text-center leading-tight shadow-lg transition ${toneFor(
-              s.avgChangePercent
-            )} ${isSelected ? "ring-2 ring-sky-400" : "hover:brightness-125"}`}
+            className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-md border px-1.5 py-1 text-center leading-tight shadow-lg transition ${
+              REGION_POSITION[s.region]
+            } ${toneFor(s.avgChangePercent)} ${
+              isSelected ? "ring-2 ring-sky-400" : "hover:brightness-125"
+            }`}
             aria-pressed={isSelected}
           >
             <div className="text-[10px] font-medium sm:text-xs">{s.region}</div>
