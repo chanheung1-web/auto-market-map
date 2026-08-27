@@ -148,6 +148,19 @@ stock-trading-app が 3000、ai-datacenter-tracker が 3001 を使っている�
 ファイアウォールでプライベートプロファイル限定で 3002 を開ける必要がある
 （手順はワークスペース直下の CLAUDE.md を参照）。
 
+## 起動導線
+
+デスクトップの `AutoMarketMap.lnk` → `start-app.bat` → `next dev -p 3002`。
+ショートカットは `create-shortcut.ps1` で作る（何度実行しても同じ .lnk を上書きする）。
+
+- デスクトップは **OneDrive の中**にあり、しかも名前がローカライズされている
+  （`C:UserschanhOneDrive바탕 화면`）。パスを組み立てず
+  `[Environment]::GetFolderPath("Desktop")` に聞くこと
+- アイコン `public/auto-market-map.ico` は Node で生成したもの（16〜256pxの6サイズ）。
+  `.bat` の既定アイコンのままだと stock-trading-app のショートカットと見分けが付かない
+- `WindowStyle = 7`（最小化）は stock-trading-app と揃えている。
+  バッチの黒窓はサーバーの入れ物にすぎず、見るのはブラウザのほうなので
+
 ## iPhone から見るための設定
 
 3000番と同じ手順が要る。**両方やらないと繋がらない。**
