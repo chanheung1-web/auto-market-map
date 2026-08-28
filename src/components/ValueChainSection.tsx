@@ -31,6 +31,29 @@ function formatPrice(q: Quote | undefined): string {
   return q.price.toLocaleString(undefined, { maximumFractionDigits: 2 });
 }
 
+/**
+ * その価格が**実際に約定した時刻**を日本時間で表す。
+ *
+ * ヘッダーの「取得」がサーバーが Yahoo を叩いた時刻なのに対し、こちらは値段
+ * そのものの時刻。監視対象は6地域にまたがり、どの瞬間にも大半の市場は閉じて
+ * いるので、両者は普段から食い違う。米国株を日本時間の昼に見れば、価格は
+ * 前日の朝5時（＝現地16時の引け）のものになる。
+ *
+ * 当日なら時刻だけ、別の日なら日付を前置きする。「いま動いている値段か、
+ * 止まっている値段か」が一目で分かればよく、秒までは要らない。
+ */
+function formatQuoteTime(ms: number | null | undefined): string | null {
+  if (typeof ms !== "number" || !Number.isFinite(ms)) return null;
+  const d = new Date(ms);
+  const now = new Date();
+  const hhmm = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  const sameDay =
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate();
+  return sameDay ? hhmm : `${d.getMonth() + 1}/${d.getDate()} ${hhmm}`;
+}
+
 export function ValueChainSection({
   companies,
   quotes,
@@ -68,6 +91,7 @@ export function ValueChainSection({
             <div className="overflow-hidden rounded-lg border border-zinc-800">
               {sorted.map((c, i) => {
                 const q = c.code ? quotes.get(c.code) : undefined;
+                const quoteTime = formatQuoteTime(q?.quoteTime);
                 const newsCount = newsCountByCompany.get(c.id) ?? 0;
                 const isSelected = selectedCompanyId === c.id;
 
@@ -116,12 +140,23 @@ export function ValueChainSection({
                           縦に読めなくなる。数字は右揃えで列として成立させる。 */}
                       <div
                         className="w-24 shrink-0 text-right sm:w-28"
-                        title={q?.currency ?? undefined}
+                        title={
+                          q?.quoteTime
+                            ? `${c.name}｜最終約定 ${new Date(q.quoteTime).toLocaleString("ja-JP")}（日本時間）${
+                                q.currency ? `｜${q.currency}建て` : ""
+                              }`
+                            : (q?.currency ?? undefined)
+                        }
                       >
                         <div className="text-sm tabular-nums text-zinc-200">{formatPrice(q)}</div>
                         <div className={`text-xs tabular-nums ${changeClass(q?.changePercent)}`}>
                           {c.code === null ? "非上場" : formatPercent(q?.changePercent ?? null)}
                         </div>
+                        {/* 価格の鮮度。市場が閉じていれば当然古くなるので、
+                            異常ではない情報として控えめな色で置く。 */}
+                        {quoteTime && (
+                          <div className="text-[10px] tabular-nums text-zinc-600">{quoteTime}</div>
+                        )}
                       </div>
                     </button>
 

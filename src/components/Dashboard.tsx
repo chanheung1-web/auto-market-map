@@ -227,7 +227,7 @@ export function Dashboard() {
             {loading
               ? "株価を取得中…"
               : fetchedAt
-                ? `${companies.length}社 · 更新 ${new Date(fetchedAt).toLocaleTimeString("ja-JP")}`
+                ? `${companies.length}社 · 取得 ${new Date(fetchedAt).toLocaleTimeString("ja-JP")}`
                 : `${companies.length}社`}
           </span>
           {portfolio?.error && (
@@ -305,6 +305,13 @@ export function Dashboard() {
             </button>
           )}
         </div>
+        {/* 「取得」と価格の時刻は普段から食い違う。6地域を並べている以上、
+            どの瞬間にも大半の市場は閉じているため。誤解されやすいので明示する。 */}
+        <p className="text-[11px] text-zinc-600">
+          上部の「取得」はこのアプリが株価を読みに行った時刻です。各銘柄の下に出る
+          時刻は、その値段が実際に約定した時刻（日本時間）で、市場が閉じていれば
+          前営業日のままになります。
+        </p>
       </section>
 
       <section id="chain" className="scroll-mt-24">
