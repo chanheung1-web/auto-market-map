@@ -36,22 +36,19 @@ function formatPrice(q: Quote | undefined): string {
  *
  * ヘッダーの「取得」がサーバーが Yahoo を叩いた時刻なのに対し、こちらは値段
  * そのものの時刻。監視対象は6地域にまたがり、どの瞬間にも大半の市場は閉じて
- * いるので、両者は普段から食い違う。米国株を日本時間の昼に見れば、価格は
- * 前日の朝5時（＝現地16時の引け）のものになる。
+ * いるので、両者は普段から食い違う。
  *
- * 当日なら時刻だけ、別の日なら日付を前置きする。「いま動いている値段か、
- * 止まっている値段か」が一目で分かればよく、秒までは要らない。
+ * **日付は必ず出す。**「当日なら時刻だけ」にしていた時期があったが、この板では
+ * 逆効果だった。日本時間の午前に見ると、米国の引け（当日5:00）は日付が消えて
+ * 「5:00」、日本の前日引けは「8/28 15:30」と出る。つまり**新しい価格ほど
+ * 日付が無い**という読み方になり、そのうえ「5:00」だけでは何日の5時か分からない。
+ * 市場ごとに日付の変わり目が違う以上、省略して得られる短さより一貫性が要る。
  */
 function formatQuoteTime(ms: number | null | undefined): string | null {
   if (typeof ms !== "number" || !Number.isFinite(ms)) return null;
   const d = new Date(ms);
-  const now = new Date();
   const hhmm = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-  const sameDay =
-    d.getFullYear() === now.getFullYear() &&
-    d.getMonth() === now.getMonth() &&
-    d.getDate() === now.getDate();
-  return sameDay ? hhmm : `${d.getMonth() + 1}/${d.getDate()} ${hhmm}`;
+  return `${d.getMonth() + 1}/${d.getDate()} ${hhmm}`;
 }
 
 export function ValueChainSection({
