@@ -11,6 +11,7 @@ import { AddCompanyForm } from "./AddCompanyForm";
 import { NewsPanel } from "./NewsPanel";
 import { RegionMap } from "./RegionMap";
 import { TopicsPanel } from "./TopicsPanel";
+import { SupplyChainPanel } from "./SupplyChainPanel";
 import { ValueChainSection } from "./ValueChainSection";
 
 // ページは電話だと数画面ぶんの高さがあるので、各セクションにアンカーを付けて
@@ -19,6 +20,7 @@ import { ValueChainSection } from "./ValueChainSection";
 const SECTIONS = [
   { id: "topics", label: "重要トピック" },
   { id: "map", label: "世界地図" },
+  { id: "supply", label: "サプライチェーン" },
   { id: "chain", label: "バリューチェーン" },
   { id: "news", label: "個別ニュース" },
 ] as const;
@@ -312,6 +314,18 @@ export function Dashboard() {
           時刻は、その値段が実際に約定した時刻（日本時間）で、市場が閉じていれば
           前営業日のままになります。
         </p>
+      </section>
+
+      {/* 構造（誰がどれだけ握っているか）を、銘柄一覧（今日いくら動いたか）より
+          先に置く。値動きの意味は構造を知らないと読めないため。 */}
+      <section id="supply" className="scroll-mt-24">
+        <h2 className="mb-3 text-base font-semibold text-zinc-100">サプライチェーン</h2>
+        <SupplyChainPanel
+          layer={layer}
+          companies={companies}
+          quotes={quotes}
+          onSelectCompany={setCompanyId}
+        />
       </section>
 
       <section id="chain" className="scroll-mt-24">
