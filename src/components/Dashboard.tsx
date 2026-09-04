@@ -11,8 +11,7 @@ import { AddCompanyForm } from "./AddCompanyForm";
 import { NewsPanel } from "./NewsPanel";
 import { RegionMap } from "./RegionMap";
 import { TopicsPanel } from "./TopicsPanel";
-import { SupplyChainPanel } from "./SupplyChainPanel";
-import { ValueChainSection } from "./ValueChainSection";
+import { ChainSection } from "./ChainSection";
 
 // ページは電話だと数画面ぶんの高さがあるので、各セクションにアンカーを付けて
 // 上の固定バーから飛べるようにする（stock-trading-app と同じ作り）。
@@ -20,8 +19,7 @@ import { ValueChainSection } from "./ValueChainSection";
 const SECTIONS = [
   { id: "topics", label: "重要トピック" },
   { id: "map", label: "世界地図" },
-  { id: "supply", label: "サプライチェーン" },
-  { id: "chain", label: "バリューチェーン" },
+  { id: "chain", label: "サプライチェーン" },
   { id: "news", label: "個別ニュース" },
 ] as const;
 
@@ -316,23 +314,18 @@ export function Dashboard() {
         </p>
       </section>
 
-      {/* 構造（誰がどれだけ握っているか）を、銘柄一覧（今日いくら動いたか）より
-          先に置く。値動きの意味は構造を知らないと読めないため。 */}
-      <section id="supply" className="scroll-mt-24">
-        <h2 className="mb-3 text-base font-semibold text-zinc-100">サプライチェーン</h2>
-        <SupplyChainPanel
-          layer={layer}
-          companies={companies}
-          quotes={quotes}
-          onSelectCompany={setCompanyId}
-        />
-      </section>
-
       <section id="chain" className="scroll-mt-24">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-base font-semibold text-zinc-100">バリューチェーン</h2>
+        <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-base font-semibold text-zinc-100">サプライチェーン</h2>
           <AddCompanyForm onAdded={applyCompanies} />
         </div>
+        {/* 階層 → 部品カテゴリ → 企業 の1本の木。市場規模とシェアは
+            2024年基準の調査会社推計で、カテゴリ間で足せない。 */}
+        <p className="mb-3 text-xs text-zinc-500">
+          階層 → 部品カテゴリ → 企業。カテゴリの市場規模・シェアは2024年基準の
+          調査会社推計（±数%）で、
+          <span className="text-zinc-400">定義が違うためカテゴリ間で合計できません</span>。
+        </p>
 
         {/* 非表示にした組み込み銘柄はここからしか戻せない。件数が0なら出さない。 */}
         {hidden.length > 0 && (
@@ -350,12 +343,13 @@ export function Dashboard() {
             ))}
           </div>
         )}
-        <ValueChainSection
+        <ChainSection
           companies={visibleCompanies}
           quotes={quotes}
           newsCountByCompany={newsCountByCompany}
           portfolio={portfolio}
           addedIds={addedIds}
+          layerFilter={layer}
           selectedCompanyId={companyId}
           onSelectCompany={setCompanyId}
           onRemoveCompany={removeCompany}

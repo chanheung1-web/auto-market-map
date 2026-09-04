@@ -195,7 +195,7 @@ export const COMPANIES: Company[] = [
   { id: "pksha", name: "PKSHA Technology", code: "3993.T", exchange: "東証P", region: "日本", country: "日本", layer: "SOFTWARE", position: "AIアルゴリズム。自動運転向けの提供実績がある" },
   { id: "tier4", name: "ティアフォー", code: null, exchange: null, region: "日本", country: "日本", layer: "SOFTWARE", position: "非上場。自動運転OSS(Autoware)の中心。国産エッジAI半導体にも参画" },
   // 6773.T は 404（2019年に上場廃止）。ニュースには繰り返し出るため残す。
-  { id: "pioneer", name: "パイオニア", code: null, exchange: null, region: "日本", country: "日本", layer: "SOFTWARE", position: "非上場。車載ナビ。BtoC撤退しOEM供給へ集中" },
+  { id: "pioneer", name: "パイオニア", code: null, exchange: null, region: "日本", country: "日本", layer: "TIER1", position: "非上場。車載ナビ・IVI。BtoC撤退しOEM供給へ集中" },
 
   // ── 素材・製造装置 ──────────────────────────────────────────
   { id: "nipponsteel", name: "日本製鉄", code: "5401.T", exchange: "東証P", region: "日本", country: "日本", layer: "MATERIAL", position: "自動車向け高張力鋼板。OEMの生産計画が業績に波及" },
@@ -203,7 +203,7 @@ export const COMPANIES: Company[] = [
   { id: "toray", name: "東レ", code: "3402.T", exchange: "東証P", region: "日本", country: "日本", layer: "MATERIAL", position: "炭素繊維。電池セパレータも" },
   { id: "asahi-kasei", name: "旭化成", code: "3407.T", exchange: "東証P", region: "日本", country: "日本", layer: "MATERIAL", position: "電池セパレータで世界首位級" },
   { id: "sumitomo-metal-mining", name: "住友金属鉱山", code: "5713.T", exchange: "東証P", region: "日本", country: "日本", layer: "MATERIAL", position: "電池正極材。ニッケル権益も持つ" },
-  { id: "agc", name: "AGC", code: "5201.T", exchange: "東証P", region: "日本", country: "日本", layer: "MATERIAL", position: "自動車ガラス。ヘッドアップディスプレイ対応品も" },
+  { id: "agc", name: "AGC", code: "5201.T", exchange: "東証P", region: "日本", country: "日本", layer: "TIER1", position: "自動車ガラス。ヘッドアップディスプレイ対応品も" },
   { id: "sekisui-chemical", name: "積水化学工業", code: "4204.T", exchange: "東証P", region: "日本", country: "日本", layer: "MATERIAL", position: "合わせガラス用中間膜で世界首位級" },
   { id: "mitsui-chemicals", name: "三井化学", code: "4183.T", exchange: "東証P", region: "日本", country: "日本", layer: "MATERIAL", position: "自動車用樹脂・エラストマー" },
   { id: "dowa", name: "DOWAホールディングス", code: "5714.T", exchange: "東証P", region: "日本", country: "日本", layer: "MATERIAL", position: "触媒用貴金属リサイクル・車載向け電子材料" },
