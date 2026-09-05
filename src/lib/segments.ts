@@ -38,7 +38,8 @@ export type SegmentId =
   | "aluminum"
   | "resin"
   | "paint"
-  | "battery-material"
+  | "cathode-anode"
+  | "lithium"
   | "material-other";
 
 export type Segment = {
@@ -64,10 +65,10 @@ export const SEGMENTS: Segment[] = [
   { id: "tire", layer: "TIER1", label: "タイヤ・ゴム", scope: "タイヤ・ゴムホース・防振材", supplyId: "c5-タイヤ-ゴム" },
   { id: "glass", layer: "TIER1", label: "ガラス・サンルーフ", scope: "自動車ガラス・サンルーフ", supplyId: "c9-ガラス-サンルーフ" },
   { id: "seal", layer: "TIER1", label: "シール・ウェザーストリップ", scope: "ウェザーストリップ・オイルシール", supplyId: "c4-シール-ウェザーストリップ" },
-  { id: "lighting", layer: "TIER1", label: "照明", scope: "ヘッドランプ・リアランプ", supplyId: null },
-  { id: "safety", layer: "TIER1", label: "安全部品", scope: "エアバッグ・シートベルト", supplyId: null },
+  { id: "lighting", layer: "TIER1", label: "照明", scope: "ヘッドランプ・リアランプ", supplyId: "x-lighting" },
+  { id: "safety", layer: "TIER1", label: "安全部品", scope: "エアバッグ・シートベルト", supplyId: "x-safety" },
 
-  { id: "battery-cell", layer: "BATTERY", label: "車載電池セル", scope: "リチウムイオン電池セル・モジュール", supplyId: null },
+  { id: "battery-cell", layer: "BATTERY", label: "車載電池セル", scope: "リチウムイオン電池セル・モジュール", supplyId: "x-battery-cell" },
   { id: "battery-next", layer: "BATTERY", label: "次世代電池", scope: "全固体電池等、量産前の開発段階", supplyId: null },
 
   { id: "mcu", layer: "SEMI", label: "車載MCU", scope: "マイコン・車載プロセッサ", supplyId: "c12-mcu" },
@@ -82,7 +83,8 @@ export const SEGMENTS: Segment[] = [
   { id: "aluminum", layer: "MATERIAL", label: "アルミ部品", scope: "アルミパネル・鋳造品", supplyId: "c2-metalアルミ" },
   { id: "resin", layer: "MATERIAL", label: "樹脂・化学素材", scope: "自動車用樹脂・繊維・中間膜", supplyId: "c6-樹脂素材" },
   { id: "paint", layer: "MATERIAL", label: "塗料・コーティング", scope: "OEM塗料・補修塗料", supplyId: "c15-塗料-コーティング" },
-  { id: "battery-material", layer: "MATERIAL", label: "電池材料", scope: "正極材・負極材・リチウム", supplyId: null },
+  { id: "cathode-anode", layer: "MATERIAL", label: "正極材・負極材", scope: "カソード(NCM/LFP)・アノード(黒鉛・シリコン)", supplyId: "x-cathode-anode" },
+  { id: "lithium", layer: "MATERIAL", label: "リチウム資源", scope: "炭酸リチウム・水酸化リチウム", supplyId: "x-lithium" },
   { id: "material-other", layer: "MATERIAL", label: "その他素材", scope: "触媒・リサイクル・電子材料", supplyId: null },
 ];
 
@@ -161,8 +163,8 @@ export const COMPANY_SEGMENT: Record<string, SegmentId> = {
   nipponsteel: "steel", "kobe-steel": "steel", arcelormittal: "steel",
   toray: "resin", "asahi-kasei": "resin", "mitsui-chemicals": "resin",
   "sekisui-chemical": "resin",
-  "sumitomo-metal-mining": "battery-material", "posco-future-m": "battery-material",
-  ganfeng: "battery-material", albemarle: "battery-material",
+  "sumitomo-metal-mining": "cathode-anode", "posco-future-m": "cathode-anode",
+  ganfeng: "lithium", albemarle: "lithium",
   dowa: "material-other",
 };
 

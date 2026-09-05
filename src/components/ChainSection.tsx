@@ -7,6 +7,8 @@ import { normalizeCode } from "@/lib/portfolio";
 import { formatPercent } from "@/lib/regions";
 import { SEGMENTS, segmentOf, type SegmentId } from "@/lib/segments";
 import { SUPPLY_CATEGORIES, top3Share, type SupplyCategory } from "@/lib/supplyChain";
+import type { SupplyPlayer } from "@/lib/supplyChain";
+import { EXTRA_CATEGORIES } from "@/lib/supplyChainExtra";
 import type { Quote } from "@/lib/yahooFinance";
 
 type Props = {
@@ -22,7 +24,9 @@ type Props = {
   onRemoveCompany: (id: string) => void;
 };
 
-const SUPPLY_BY_ID = new Map(SUPPLY_CATEGORIES.map((c) => [c.id, c]));
+const SUPPLY_BY_ID = new Map(
+  [...SUPPLY_CATEGORIES, ...EXTRA_CATEGORIES].map((c) => [c.id, c])
+);
 
 function changeClass(v: number | null | undefined): string {
   if (v === null || v === undefined) return "text-zinc-500";
@@ -150,11 +154,68 @@ function CompanyRow({
   );
 }
 
+
+/**
+ * 監視していない上位プレイヤーの行。
+ *
+ * 以前はカード下部にチップとしてまとめていたが、そうすると「2位の豊田合成」が
+ * 一覧に出ているのに1位が見当たらない、という読み方になっていた。
+ * **順位は1位から通しで並べる。**株価が無いことは行の右端で示す。
+ */
+function UnwatchedRow({
+  player,
+  elsewhere,
+  onSelect,
+}: {
+  player: SupplyPlayer;
+  /** 監視はしているが、主セグメントが別のカテゴリである場合の企業名。 */
+  elsewhere: Company | null;
+  onSelect: () => void;
+}) {
+  return (
+    <div className="flex items-center gap-2 border-t border-zinc-800 bg-zinc-950/40">
+      <div className="flex min-w-0 flex-1 items-center gap-2 px-2 py-2 sm:px-3">
+        <span className="w-5 shrink-0 text-center text-[11px] tabular-nums text-zinc-600">
+          {player.rank}
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-1.5">
+            {elsewhere ? (
+              <button
+                type="button"
+                onClick={onSelect}
+                className="truncate text-sm text-sky-300 hover:underline"
+              >
+                {player.name}
+              </button>
+            ) : (
+              <span className="truncate text-sm text-zinc-400">{player.name}</span>
+            )}
+            <span className="shrink-0 rounded border border-zinc-700 bg-zinc-900 px-1 text-[10px] text-zinc-400">
+              シェア {player.share}
+            </span>
+          </div>
+          <div className="truncate text-[11px] text-zinc-600">
+            {player.hq}
+            {player.products ? " · " + player.products : ""}
+          </div>
+        </div>
+        <div className="w-24 shrink-0 text-right text-[11px] text-zinc-600 sm:w-28">
+          {elsewhere ? "別カテゴリに掲載" : "監視対象外"}
+        </div>
+      </div>
+      {/* 監視対象ではないので削除ボタンは出さないが、幅は揃えて列をずらさない。 */}
+      <div className="w-8 shrink-0" />
+    </div>
+  );
+}
+
 function SegmentCard({
   label,
   scope,
   supply,
   members,
+  allCompanies,
   quotes,
   newsCountByCompany,
   portfolio,
@@ -169,6 +230,8 @@ function SegmentCard({
   scope: string;
   supply: SupplyCategory | null;
   members: Company[];
+  /** 全監視銘柄。他カテゴリを主とする企業がここに顔を出すため。 */
+  allCompanies: Company[];
   quotes: Map<string, Quote>;
   newsCountByCompany: Map<string, number>;
   portfolio: PortfolioLink | null;
@@ -209,11 +272,24 @@ function SegmentCard({
     });
   }, [members, shareByCompany, quotes]);
 
-  // 監視していない上位プレイヤー。構造を理解するうえで抜けていると困るので、
-  // 株価は無くても名前だけは出す。
-  const unwatched = (supply?.players ?? []).filter(
-    (p) => !p.companyId || !members.some((m) => m.id === p.companyId)
-  );
+  // 1位から通しで並べた行。ランキング上の企業は監視有無にかかわらずここに入り、
+  // 監視しているだけでランキング外の企業はそのあとに続く。
+  const rows = useMemo(() => {
+    const out: ({ kind: "company"; company: Company } | { kind: "player"; player: SupplyPlayer })[] =
+      [];
+    const placed = new Set<string>();
+    for (const p of supply?.players ?? []) {
+      const co = p.companyId ? members.find((m) => m.id === p.companyId) : undefined;
+      if (co) {
+        out.push({ kind: "company", company: co });
+        placed.add(co.id);
+      } else {
+        out.push({ kind: "player", player: p });
+      }
+    }
+    for (const c of sorted) if (!placed.has(c.id)) out.push({ kind: "company", company: c });
+    return out;
+  }, [supply, members, sorted]);
 
   const avg = useMemo(() => {
     const v = members
@@ -269,12 +345,27 @@ function SegmentCard({
               {supply.driver}
             </p>
           )}
+          {/* 出どころと時点。Excel由来と後から調べたぶんで確度が違うので必ず出す。 */}
+          <p className="mt-1 text-[11px] text-zinc-600">出典: {supply.source}</p>
         </div>
       )}
 
       {open && (
       <div>
-        {sorted.map((c) => {
+        {rows.map((row) => {
+          if (row.kind === "player") {
+            const cid = row.player.companyId;
+            const elsewhere = cid ? (allCompanies.find((c) => c.id === cid) ?? null) : null;
+            return (
+              <UnwatchedRow
+                key={`p-${row.player.rank}-${row.player.name}`}
+                player={row.player}
+                elsewhere={elsewhere}
+                onSelect={() => elsewhere && onSelectCompany(elsewhere.id)}
+              />
+            );
+          }
+          const c = row.company;
           const q = c.code ? quotes.get(c.code) : undefined;
           const key = c.code ? normalizeCode(c.code) : null;
           const s = shareByCompany.get(c.id);
@@ -298,24 +389,6 @@ function SegmentCard({
       </div>
       )}
 
-      {open && unwatched.length > 0 && (
-        <div className="border-t border-zinc-800 px-3 py-2">
-          <p className="mb-1 text-[11px] text-zinc-500">
-            この分野の上位プレイヤーのうち、株価を追っていない企業
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {unwatched.map((p) => (
-              <span
-                key={p.name}
-                title={`${p.hq}｜${p.products}｜${p.strategy}`}
-                className="rounded border border-zinc-800 bg-zinc-950/60 px-1.5 py-0.5 text-[11px] text-zinc-400"
-              >
-                {p.rank}. {p.name} {p.share}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
     </section>
   );
 }
@@ -411,6 +484,7 @@ export function ChainSection({
                     scope={s.scope}
                     supply={s.supplyId ? (SUPPLY_BY_ID.get(s.supplyId) ?? null) : null}
                     members={members}
+                    allCompanies={companies}
                     quotes={quotes}
                     newsCountByCompany={newsCountByCompany}
                     portfolio={portfolio}
@@ -430,6 +504,7 @@ export function ChainSection({
                   scope="画面から追加した銘柄。セグメントは segments.ts で割り当てる"
                   supply={null}
                   members={extra}
+                  allCompanies={companies}
                   quotes={quotes}
                   newsCountByCompany={newsCountByCompany}
                   portfolio={portfolio}

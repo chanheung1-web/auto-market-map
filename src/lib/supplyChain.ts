@@ -44,6 +44,8 @@ export type SupplyCategory = {
   /** 成長ドライバー（Excel のメタ行の残り）。 */
   driver: string;
   summary: string;
+  /** 数字の出どころと時点。Excel 由来か、後から個別に調べたものかを区別する。 */
+  source: string;
   players: SupplyPlayer[];
 };
 
@@ -57,6 +59,7 @@ export const SUPPLY_CATEGORIES: SupplyCategory[] = [
     cagr: "5.5%",
     driver: "EV向け超高張力鋼需要が拡大",
     summary: "車体外板・骨格・強度部材に用いる高張力鋼(HSS/UHSS)サプライヤー。ArcelorMittal・新日鉄・POSCOが三強。EV化でギガキャスト（アルミ一体鋳造）への一部置き換えが進むが、コスト競争力から鋼材も継続需要。",
+    source: "automotive_supply_chain_v2.xlsx（2024年基準・調査会社推計）",
     players: [
       { rank: 1, name: "ArcelorMittal", hq: "🇱🇺 ルクセンブルク", share: "~12%", sharePercent: 12, shareNote: "鉄鋼首位", products: "Usibor/Ductibor 超高張力鋼", strategy: "ホットスタンプ用鋼材の技術リーダー", note: "鋼材グローバル生産量No.1", companyId: "arcelormittal" },
       { rank: 2, name: "Nippon Steel (新日鉄住金)", hq: "🇯🇵 日本", share: "~8%", sharePercent: 8, shareNote: "鉄鋼2位", products: "高張力鋼板・電磁鋼板", strategy: "Toyota・Hondaの主要調達先", note: "EV向けモーターコア材も強化中", companyId: "nipponsteel" },
@@ -74,6 +77,7 @@ export const SUPPLY_CATEGORIES: SupplyCategory[] = [
     cagr: "10.7%",
     driver: "EVシフトで最高成長率カテゴリの一つ",
     summary: "圧延アルミ・鋳造アルミ・押出アルミを自動車向けに供給。Novelisが圧延アルミで世界首位。EVのバッテリー筐体・ボディ軽量化需要が急拡大。",
+    source: "automotive_supply_chain_v2.xlsx（2024年基準・調査会社推計）",
     players: [
       { rank: 1, name: "Novelis (Hindalco子会社)", hq: "🇮🇳/🇺🇸", share: "~18%", sharePercent: 18, shareNote: "圧延首位", products: "圧延アルミ (ボディシート全般)", strategy: "リサイクルアルミ戦略・低炭素", note: "自動車向け圧延アルミ世界No.1", companyId: null },
       { rank: 2, name: "Constellium SE", hq: "🇳🇱 オランダ", share: "~12%", sharePercent: 12, shareNote: "圧延2位", products: "アルミ構造材・BIW部品", strategy: "Tesla/BMW長期供給契約", note: "CES 2024で新世代アルミ構造体発表", companyId: null },
@@ -91,6 +95,7 @@ export const SUPPLY_CATEGORIES: SupplyCategory[] = [
     cagr: "4.8~6.7%",
     driver: "EVスケートボードシャシーで設計思想が変革中",
     summary: "車両骨格・走行安定系を担うカテゴリ。シャシーはMagna・Gestamp・Bentelerが三強。サスペンションはZF・Tenneco・KYBが主要プレイヤー。EV化でギガキャスト採用が拡大中。",
+    source: "automotive_supply_chain_v2.xlsx（2024年基準・調査会社推計）",
     players: [
       { rank: 1, name: "ZF Friedrichshafen", hq: "🇩🇪 ドイツ", share: "~8%", sharePercent: 8, shareNote: "サスペンション首位", products: "電子制御エアサスペンション", strategy: "センサー統合型スマートサスペンション", note: "全方位メガサプライヤー。パワートレインも", companyId: "zf" },
       { rank: 2, name: "Magna International", hq: "🇨🇦 カナダ", share: "~10%", sharePercent: 10, shareNote: "シャシー首位", products: "フレーム・クロスメンバー・BIW全般", strategy: "EV向けスケートボード型シャシー", note: "カナダ最大の自動車部品メーカー", companyId: "magna" },
@@ -108,6 +113,7 @@ export const SUPPLY_CATEGORIES: SupplyCategory[] = [
     cagr: "3.5%",
     driver: "EV向けNVH対策・軽量EPDM素材が成長ドライバー",
     summary: "ドア・窓周囲の雨水・騒音・塵の侵入を防ぐシール部品。Glass Runが最大セグメント。Cooper Standard・豊田合成・Hutchinsonが三強。EV化でNVH（騒音・振動・ハーシュネス）対策ニーズが高まり付加価値化が進む。",
+    source: "automotive_supply_chain_v2.xlsx（2024年基準・調査会社推計）",
     players: [
       { rank: 1, name: "Cooper Standard", hq: "🇺🇸 米国", share: "~20%", sharePercent: 20, shareNote: "首位", products: "Weatherstrip全般・Glass run・Fortrex素材", strategy: "EV向け軽量NVHシール・低摩擦素材", note: "北米/欧州/APACに全球展開", companyId: null },
       { rank: 2, name: "Toyoda Gosei (豊田合成)", hq: "🇯🇵 日本", share: "~15%", sharePercent: 15, shareNote: "2位", products: "ドアウェザーストリップ・Glass run・ルーフモール", strategy: "エアロダイナミック設計で空力性能改善", note: "Toyota・Lexus向けが中心", companyId: "toyoda-gosei" },
@@ -125,6 +131,7 @@ export const SUPPLY_CATEGORIES: SupplyCategory[] = [
     cagr: "4.7~5.0%",
     driver: "トップ5社でタイヤ市場の60%超を独占。中国勢の台頭が加速",
     summary: "タイヤはMichelin・Bridgestoneが二強。EV向け低転がり抵抗・高荷重タイヤの開発競争が激化中。ゴム防振・シールはNOK・Parker・Freudenbergが主要企業。",
+    source: "automotive_supply_chain_v2.xlsx（2024年基準・調査会社推計）",
     players: [
       { rank: 1, name: "Michelin", hq: "🇫🇷 フランス", share: "~15%", sharePercent: 15, shareNote: "タイヤ首位(売上)", products: "Pilot・Primacy・CrossClimate全般", strategy: "持続可能ゴム・センサー内蔵スマートタイヤ", note: "175カ国展開。83工場保有", companyId: "michelin" },
       { rank: 2, name: "Bridgestone", hq: "🇯🇵 日本", share: "~14%", sharePercent: 14, shareNote: "タイヤ2位", products: "Potenza・Turanza・Blizzak", strategy: "EV対応タイヤ・ランフラット技術", note: "収益の約90%がタイヤ事業", companyId: null },
@@ -142,6 +149,7 @@ export const SUPPLY_CATEGORIES: SupplyCategory[] = [
     cagr: "7.5%",
     driver: "EV向けバッテリーケース・難燃素材が急拡大",
     summary: "バンパー・ダッシュボード・バッテリーケースなどの樹脂素材供給。BASF・SABIC・LyondellBasellが上流素材を支配。EV化でPA6/PPSなどの難燃・高耐熱エンプラが急拡大中。",
+    source: "automotive_supply_chain_v2.xlsx（2024年基準・調査会社推計）",
     players: [
       { rank: 1, name: "BASF SE", hq: "🇩🇪 ドイツ", share: "~12%", sharePercent: 12, shareNote: "首位", products: "Ultramid(PA)・Ultradur(PBT)・Elastollan", strategy: "バイオマスバランス対応グリーン樹脂", note: "自動車向けエンプラで業界No.1", companyId: null },
       { rank: 2, name: "SABIC (Saudi Aramco系)", hq: "🇸🇦 サウジ", share: "~10%", sharePercent: 10, shareNote: "2位", products: "PP・PC・エンプラ全般 BLUEHERO™", strategy: "EV向け難燃電池ケース素材強化", note: "世界最大規模の石化企業の一つ", companyId: null },
@@ -159,6 +167,7 @@ export const SUPPLY_CATEGORIES: SupplyCategory[] = [
     cagr: "1.2-3.6%",
     driver: "電動調整・マッサージ・通気機能で付加価値競争が激化",
     summary: "車内最大の内装部品。Adient・Lear・Faureciaが三強でオリゴポリー構造。EV化でシートアーキテクチャの再設計や軽量化需要が増加。ヒーター・ベンチレーション・マッサージ機能付きの高付加価値シートが利益貢献。",
+    source: "automotive_supply_chain_v2.xlsx（2024年基準・調査会社推計）",
     players: [
       { rank: 1, name: "Adient PLC", hq: "🇮🇪/🇺🇸", share: "~22%", sharePercent: 22, shareNote: "首位", products: "シートフレーム・フォーム・表皮全般", strategy: "EV向け軽量化・リサイクル素材シート", note: "旧Johnson Controls シート部門", companyId: null },
       { rank: 2, name: "Lear Corporation", hq: "🇺🇸 米国", share: "~18%", sharePercent: 18, shareNote: "2位", products: "シートシステム・電動シートフレーム", strategy: "Kongsberg ICS買収で機能強化", note: "電気系統（ハーネス）も事業の柱", companyId: "lear" },
@@ -176,6 +185,7 @@ export const SUPPLY_CATEGORIES: SupplyCategory[] = [
     cagr: "4.5-4.8%",
     driver: "軽量不織布・リサイクル素材へのシフトが加速",
     summary: "ヘッドライナー・ドアライニング・インパネ（ダッシュボード）等の内装トリム部品。Grupo Antolin・Toyota Boshoku・Faureciaが主要プレイヤー。EV化でNVH（静粛性）強化ニーズが高まり、ヘッドライナー等の吸音設計が重要化。",
+    source: "automotive_supply_chain_v2.xlsx（2024年基準・調査会社推計）",
     players: [
       { rank: 1, name: "Grupo Antolin", hq: "🇪🇸 スペイン", share: "~20%", sharePercent: 20, shareNote: "ヘッドライナー首位", products: "ヘッドライナー・オーバーヘッドシステム", strategy: "内蔵型照明・センサー統合モジュール", note: "ヘッドライナーでグローバルNo.1", companyId: null },
       { rank: 2, name: "Toyota Boshoku (トヨタ紡織)", hq: "🇯🇵 日本", share: "~15%", sharePercent: 15, shareNote: "2位", products: "内装トリム・ドアライニング全般", strategy: "リサイクル繊維活用・EV向け吸音材", note: "トヨタ系内装部品の主要サプライヤー", companyId: "toyota-boshoku" },
@@ -193,6 +203,7 @@ export const SUPPLY_CATEGORIES: SupplyCategory[] = [
     cagr: "5.3~12.1%",
     driver: "スマートガラス・HUDフロントガラス・調光サンルーフが急成長",
     summary: "自動車用ガラスはFuyao・AGC・NSG・Saint-Gobainの4社で約90%を独占する超寡占市場。EV向けパノラマルーフ・スマート調光ガラスの需要が急拡大。サンルーフ（ルーフシステム）はWebastoが単独首位。",
+    source: "automotive_supply_chain_v2.xlsx（2024年基準・調査会社推計）",
     players: [
       { rank: 1, name: "Fuyao Glass (福耀玻璃)", hq: "🇨🇳 中国", share: "~34%", sharePercent: 34, shareNote: "ガラス首位", products: "フロント・サイド・リアガラス全般", strategy: "パノラマルーフ・HUDウィンドシールド", note: "中国最大。米国Decatに$400M投資発表", companyId: "fuyao" },
       { rank: 2, name: "AGC (旭硝子)", hq: "🇯🇵 日本", share: "~23%", sharePercent: 23, shareNote: "ガラス2位", products: "自動車用全ガラス・スマートガラス", strategy: "WONDERLITE調光ガラス・EV向け軽量ガラス", note: "バウハウス・化学・電子素材も展開", companyId: "agc" },
@@ -210,6 +221,7 @@ export const SUPPLY_CATEGORIES: SupplyCategory[] = [
     cagr: "4.8-8.2%",
     driver: "EV化で高電圧HVハーネスがCAGR 17%超の急成長",
     summary: "車両全体の電気配線。Yazaki・住友電気が二強で非上場含む日系が強い。EV化で高電圧ハーネス需要が急拡大。労働集約型のためウクライナ・メキシコ・モロッコで製造が集中しており地政学リスクが顕在化。",
+    source: "automotive_supply_chain_v2.xlsx（2024年基準・調査会社推計）",
     players: [
       { rank: 1, name: "Yazaki Corporation", hq: "🇯🇵 日本", share: "~25%", sharePercent: 25, shareNote: "圧倒的首位", products: "低圧・高圧ハーネス・コネクタ全般", strategy: "46カ国展開・日系OEM全方位対応", note: "非上場。年商約1.5兆円規模", companyId: "yazaki" },
       { rank: 2, name: "Sumitomo Electric (住友電気工業)", hq: "🇯🇵 日本", share: "~20%", sharePercent: 20, shareNote: "2位", products: "自動車電線・高圧EVハーネス", strategy: "EV向け高電圧システム強化", note: "光ファイバ等も展開する総合電線メーカー", companyId: "sumitomo-electric" },
@@ -227,6 +239,7 @@ export const SUPPLY_CATEGORIES: SupplyCategory[] = [
     cagr: "8.5-9.2%",
     driver: "SDV（ソフトウェア定義自動車）化で集中型ドメインコントローラへ移行",
     summary: "車両の電子制御を担うECU（エンジン/ABS/ADAS等）とIVI（インフォテインメント）。BoschとContinentalが二強。SDV化により分散ECUから中央集約型アーキへの移行が進み、ソフトウェア開発力が重要差別化要因に。",
+    source: "automotive_supply_chain_v2.xlsx（2024年基準・調査会社推計）",
     players: [
       { rank: 1, name: "Robert Bosch", hq: "🇩🇪 ドイツ", share: "~20%", sharePercent: 20, shareNote: "首位", products: "全ECU系・パワートレイン・シャシー制御", strategy: "SDV対応・中央コンピュータアーキ推進", note: "自動車部品全体でも世界No.1", companyId: "bosch" },
       { rank: 2, name: "Continental AG", hq: "🇩🇪 ドイツ", share: "~15%", sharePercent: 15, shareNote: "2位", products: "ADAS・コックピット電子系", strategy: "Aumovioとして分社化・ソフト強化", note: "タイヤ+電子の複合Tier1", companyId: "continental" },
@@ -244,6 +257,7 @@ export const SUPPLY_CATEGORIES: SupplyCategory[] = [
     cagr: "8.3%",
     driver: "上位5社で81.5%独占。ISO 26262対応が参入障壁",
     summary: "あらゆるECUの頭脳となるMCU。Infineon AURIX・NXP S32が業界標準。EV/ADASでMCUの演算性能・機能安全対応が急速に高度化。中国勢（AutoChips等）が急追中。",
+    source: "automotive_supply_chain_v2.xlsx（2024年基準・調査会社推計）",
     players: [
       { rank: 1, name: "Infineon Technologies", hq: "🇩🇪 ドイツ", share: "~28.5%", sharePercent: 28.5, shareNote: "圧倒的首位", products: "AURIX TC4x / TRAVEO II", strategy: "Marvell買収で車載Ethernet強化", note: "機能安全ASIL-D対応で業界標準MCU", companyId: "infineon" },
       { rank: 2, name: "NXP Semiconductors", hq: "🇳🇱 オランダ", share: "~20%", sharePercent: 20, shareNote: "2位", products: "S32Z/S32E (リアルタイム処理)", strategy: "MRAM+AIアクセラレータ搭載", note: "V2X通信・車載Ethernet対応に強み", companyId: "nxp" },
@@ -261,6 +275,7 @@ export const SUPPLY_CATEGORIES: SupplyCategory[] = [
     cagr: "SiC:17.7% / IGBT:7%",
     driver: "800Vプラットフォーム拡大でSiCが加速。上位5社で90%超独占",
     summary: "EV駆動用インバータのキーデバイス。SiCはSTMicro・Infineon・Onsemiが三強。Si-IGBTはInfineon・三菱電機が強い。中国（BYD半導体・StarPower）が国産化を急加速中。",
+    source: "automotive_supply_chain_v2.xlsx（2024年基準・調査会社推計）",
     players: [
       { rank: 1, name: "STMicroelectronics", hq: "🇨🇭 スイス", share: "~32.6%", sharePercent: 32.6, shareNote: "SiC絶対首位", products: "STPOWER 4th Gen SiC MOSFET", strategy: "Tesla等主要EVメーカー向け長期供給", note: "SiC分野で歴史的にシェアNo.1", companyId: "st" },
       { rank: 2, name: "Infineon Technologies", hq: "🇩🇪 ドイツ", share: "~18%", sharePercent: 18, shareNote: "SiC/IGBT両立", products: "CoolSiC / IGBT TRENCHSTOP", strategy: "200mm SiCウエハへ先行移行", note: "Xiaomi SU7設計勝利など躍進中", companyId: "infineon" },
@@ -278,6 +293,7 @@ export const SUPPLY_CATEGORIES: SupplyCategory[] = [
     cagr: "~21%",
     driver: "最高成長率カテゴリ。AI演算チップとソフトの融合が鍵",
     summary: "ADAS向けSoC（Mobileye・NVIDIA）、カメラモジュール、イメージセンサー（Sony）。L2+/L3自動運転の普及で急拡大。Sonyがイメージセンサーで4割超のシェアを持ち絶対優位。SoC競争はMobileye vs NVIDIAが二極化。",
+    source: "automotive_supply_chain_v2.xlsx（2024年基準・調査会社推計）",
     players: [
       { rank: 1, name: "Mobileye (Intel子会社)", hq: "🇮🇱 イスラエル", share: "~30%", sharePercent: 30, shareNote: "ADAS SoC首位", products: "EyeQ5/6 ADAS SoC", strategy: "SuperVision/Chauffeur L3プラットフォーム", note: "VW・BMW等主要OEMに採用", companyId: "mobileye" },
       { rank: 2, name: "NVIDIA", hq: "🇺🇸 米国", share: "~18%", sharePercent: 18, shareNote: "GPU系首位", products: "DRIVE Thor / Orin SoC", strategy: "CUDA生態系・AI学習優位性", note: "Mercedes・BYD・NIOに採用拡大", companyId: "nvidia" },
@@ -295,6 +311,7 @@ export const SUPPLY_CATEGORIES: SupplyCategory[] = [
     cagr: "4.3-9.7%",
     driver: "水性塗料・低VOC化が規制主導で進展。アジア勢が急台頭",
     summary: "OEM新車塗装と補修塗料市場。PPG・BASF・Axaltaの三強で市場の約40%を占める。ウォーターベース化・低VOC化が規制主導で加速。Nippon Paint・関西ペイントなどアジア勢も存在感を高めている。",
+    source: "automotive_supply_chain_v2.xlsx（2024年基準・調査会社推計）",
     players: [
       { rank: 1, name: "PPG Industries", hq: "🇺🇸 米国", share: "~15%", sharePercent: 15, shareNote: "首位", products: "OEM塗料・補修塗料・電着塗料全般", strategy: "BYD協業・中国EV向け特殊効果色", note: "150以上の製造拠点。グローバル最強", companyId: null },
       { rank: 2, name: "BASF Coatings", hq: "🇩🇪 ドイツ", share: "~12%", sharePercent: 12, shareNote: "2位", products: "CathoGuard電着塗料・iGloss系クリア", strategy: "バイオマスバランス対応塗料展開", note: "化学大手のコーティング部門", companyId: null },
