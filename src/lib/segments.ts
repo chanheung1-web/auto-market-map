@@ -24,6 +24,9 @@ export type SegmentId =
   | "tire"
   | "glass"
   | "seal"
+  | "brake"
+  | "thermal"
+  | "exhaust"
   | "lighting"
   | "safety"
   | "battery-cell"
@@ -65,6 +68,9 @@ export const SEGMENTS: Segment[] = [
   { id: "tire", layer: "TIER1", label: "タイヤ・ゴム", scope: "タイヤ・ゴムホース・防振材", supplyId: "c5-タイヤ-ゴム" },
   { id: "glass", layer: "TIER1", label: "ガラス・サンルーフ", scope: "自動車ガラス・サンルーフ", supplyId: "c9-ガラス-サンルーフ" },
   { id: "seal", layer: "TIER1", label: "シール・ウェザーストリップ", scope: "ウェザーストリップ・オイルシール", supplyId: "c4-シール-ウェザーストリップ" },
+  { id: "brake", layer: "TIER1", label: "ブレーキ", scope: "キャリパー・パッド・ABS/ESC", supplyId: "x-brake" },
+  { id: "thermal", layer: "TIER1", label: "熱マネジメント・空調", scope: "HVAC・熱交換器・EV用ヒートポンプ", supplyId: "x-thermal" },
+  { id: "exhaust", layer: "TIER1", label: "排気・触媒", scope: "排気系・排ガス触媒", supplyId: "x-exhaust" },
   { id: "lighting", layer: "TIER1", label: "照明", scope: "ヘッドランプ・リアランプ", supplyId: "x-lighting" },
   { id: "safety", layer: "TIER1", label: "安全部品", scope: "エアバッグ・シートベルト", supplyId: "x-safety" },
 
@@ -166,6 +172,60 @@ export const COMPANY_SEGMENT: Record<string, SegmentId> = {
   "sumitomo-metal-mining": "cathode-anode", "posco-future-m": "cathode-anode",
   ganfeng: "lithium", albemarle: "lithium",
   dowa: "material-other",
+
+  // ── 上位プレイヤーとして追加したぶん
+  posco: "steel",
+  thyssenkrupp: "steel",
+  ssab: "steel",
+  "norsk-hydro": "aluminum",
+  constellium: "aluminum",
+  uacj: "aluminum",
+  hindalco: "aluminum",
+  basf: "resin",
+  covestro: "resin",
+  lyondellbasell: "resin",
+  dupont: "resin",
+  sabic: "resin",
+  ppg: "paint",
+  axalta: "paint",
+  akzonobel: "paint",
+  "nippon-paint": "paint",
+  umicore: "cathode-anode",
+  "hunan-yuneng": "cathode-anode",
+  "hubei-wanrun": "cathode-anode",
+  dynanonic: "cathode-anode",
+  sqm: "lithium",
+  tianqi: "lithium",
+  adient: "interior",
+  "yanfeng-hasco": "interior",
+  gestamp: "chassis",
+  kyb: "chassis",
+  goodyear: "tire",
+  pirelli: "tire",
+  "cooper-standard": "seal",
+  "nishikawa-rubber": "seal",
+  nsg: "glass",
+  "saint-gobain": "glass",
+  "furukawa-electric": "harness",
+  visteon: "ecu",
+  joyson: "safety",
+  daicel: "safety",
+  calb: "battery-cell",
+  gotion: "battery-cell",
+  wolfspeed: "power-semi",
+  "will-semi": "adas-soc",
+
+  // ── 新設カテゴリぶん
+  brembo: "brake",
+  "knorr-bremse": "brake",
+  "hl-mando": "brake",
+  akebono: "brake",
+  hanon: "thermal",
+  modine: "thermal",
+  mahle: "thermal",
+  "johnson-matthey": "exhaust",
+  eberspaecher: "exhaust",
+  cataler: "exhaust",
 };
 
 /**
