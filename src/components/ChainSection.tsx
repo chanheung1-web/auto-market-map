@@ -159,6 +159,8 @@ function SegmentCard({
   newsCountByCompany,
   portfolio,
   addedIds,
+  open,
+  onToggle,
   selectedCompanyId,
   onSelectCompany,
   onRemoveCompany,
@@ -171,11 +173,12 @@ function SegmentCard({
   newsCountByCompany: Map<string, number>;
   portfolio: PortfolioLink | null;
   addedIds: Set<string>;
+  open: boolean;
+  onToggle: () => void;
   selectedCompanyId: string | null;
   onSelectCompany: (id: string | null) => void;
   onRemoveCompany: (id: string) => void;
 }) {
-  const [open, setOpen] = useState(false);
   const top3 = supply ? top3Share(supply) : null;
   const conc = concentration(top3);
 
@@ -223,7 +226,8 @@ function SegmentCard({
     <section className="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900">
       <button
         type="button"
-        onClick={() => setOpen(!open)}
+        onClick={onToggle}
+        aria-expanded={open}
         className="flex w-full items-start gap-2 p-3 text-left hover:bg-zinc-800/50"
       >
         <div className="min-w-0 flex-1">
@@ -268,6 +272,7 @@ function SegmentCard({
         </div>
       )}
 
+      {open && (
       <div>
         {sorted.map((c) => {
           const q = c.code ? quotes.get(c.code) : undefined;
@@ -291,6 +296,7 @@ function SegmentCard({
           );
         })}
       </div>
+      )}
 
       {open && unwatched.length > 0 && (
         <div className="border-t border-zinc-800 px-3 py-2">
@@ -346,8 +352,40 @@ export function ChainSection({
 
   const layers = layerFilter === "ALL" ? LAYER_ORDER : [layerFilter];
 
+  // 既定は「開いている」。このページの目的は企業を見ることなので、
+  // 畳むほうを例外にする。折りたたみ状態は親が持ち、全展開/全折りたたみを効かせる。
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const toggle = (key: string) =>
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+
+  // 表示中のカードのキー。全展開/全折りたたみはこの範囲にだけ効く
+  // （階層で絞り込んでいるとき、画面外のカードまで畳むと戻したとき驚くため）。
+  const visibleKeys: string[] = [];
+  for (const layer of layers) {
+    for (const seg of SEGMENTS) {
+      if (seg.layer === layer && (grouped.byId.get(seg.id)?.length ?? 0) > 0) visibleKeys.push(seg.id);
+    }
+    if ((grouped.unclassified.get(layer) ?? []).length > 0) visibleKeys.push(`unclassified-${layer}`);
+  }
+  const allCollapsed = visibleKeys.length > 0 && visibleKeys.every((k) => collapsed.has(k));
+
   return (
     <div className="space-y-6">
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={() => setCollapsed(allCollapsed ? new Set() : new Set(visibleKeys))}
+          className="rounded-full border border-zinc-700 bg-zinc-900 px-2.5 py-1 text-xs text-zinc-400 transition hover:bg-zinc-800 hover:text-zinc-200"
+        >
+          {allCollapsed ? "すべて展開" : "すべて折りたたむ"}
+        </button>
+      </div>
+
       {layers.map((layer) => {
         const segs = SEGMENTS.filter((s) => s.layer === layer);
         const extra = grouped.unclassified.get(layer) ?? [];
@@ -376,8 +414,9 @@ export function ChainSection({
                     quotes={quotes}
                     newsCountByCompany={newsCountByCompany}
                     portfolio={portfolio}
-
                     addedIds={addedIds}
+                    open={!collapsed.has(s.id)}
+                    onToggle={() => toggle(s.id)}
                     selectedCompanyId={selectedCompanyId}
                     onSelectCompany={onSelectCompany}
                     onRemoveCompany={onRemoveCompany}
@@ -394,8 +433,9 @@ export function ChainSection({
                   quotes={quotes}
                   newsCountByCompany={newsCountByCompany}
                   portfolio={portfolio}
-
                   addedIds={addedIds}
+                  open={!collapsed.has(`unclassified-${layer}`)}
+                  onToggle={() => toggle(`unclassified-${layer}`)}
                   selectedCompanyId={selectedCompanyId}
                   onSelectCompany={onSelectCompany}
                   onRemoveCompany={onRemoveCompany}
