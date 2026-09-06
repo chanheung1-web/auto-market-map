@@ -345,6 +345,7 @@ export function Dashboard() {
         )}
         <ChainSection
           companies={visibleCompanies}
+          allCompanies={companies}
           quotes={quotes}
           newsCountByCompany={newsCountByCompany}
           portfolio={portfolio}

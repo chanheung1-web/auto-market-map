@@ -26,6 +26,7 @@ export type SegmentId =
   | "seal"
   | "brake"
   | "thermal"
+  | "thermal-ev"
   | "exhaust"
   | "lighting"
   | "safety"
@@ -57,7 +58,7 @@ export type Segment = {
 
 // 並び順は「完成車に近い側 → 素材側」。画面もこの順に出る。
 export const SEGMENTS: Segment[] = [
-  { id: "oem-passenger", layer: "OEM", label: "完成車（乗用車）", scope: "乗用車・SUV・EVの完成車メーカー", supplyId: null },
+  { id: "oem-passenger", layer: "OEM", label: "完成車（乗用車）", scope: "乗用車・SUV・EVの完成車メーカー", supplyId: "x-oem-passenger" },
   { id: "oem-commercial", layer: "OEM", label: "商用車", scope: "トラック・バス・商用バン", supplyId: null },
 
   { id: "ecu", layer: "TIER1", label: "電子ユニット（ECU/IVI）", scope: "ECU・ドメインコントローラ・インフォテインメント", supplyId: "c11-ecu-ivi" },
@@ -69,7 +70,8 @@ export const SEGMENTS: Segment[] = [
   { id: "glass", layer: "TIER1", label: "ガラス・サンルーフ", scope: "自動車ガラス・サンルーフ", supplyId: "c9-ガラス-サンルーフ" },
   { id: "seal", layer: "TIER1", label: "シール・ウェザーストリップ", scope: "ウェザーストリップ・オイルシール", supplyId: "c4-シール-ウェザーストリップ" },
   { id: "brake", layer: "TIER1", label: "ブレーキ", scope: "キャリパー・パッド・ABS/ESC", supplyId: "x-brake" },
-  { id: "thermal", layer: "TIER1", label: "熱マネジメント・空調", scope: "HVAC・熱交換器・EV用ヒートポンプ", supplyId: "x-thermal" },
+  { id: "thermal", layer: "TIER1", label: "空調（HVAC）", scope: "キャビン空調・熱交換器・コンプレッサ", supplyId: "x-thermal" },
+  { id: "thermal-ev", layer: "TIER1", label: "EV熱マネジメント", scope: "ヒートポンプ・電子膨張弁・統合熱回路・電池冷却", supplyId: "x-thermal-ev" },
   { id: "exhaust", layer: "TIER1", label: "排気・触媒", scope: "排気系・排ガス触媒", supplyId: "x-exhaust" },
   { id: "lighting", layer: "TIER1", label: "照明", scope: "ヘッドランプ・リアランプ", supplyId: "x-lighting" },
   { id: "safety", layer: "TIER1", label: "安全部品", scope: "エアバッグ・シートベルト", supplyId: "x-safety" },
@@ -79,10 +81,10 @@ export const SEGMENTS: Segment[] = [
 
   { id: "mcu", layer: "SEMI", label: "車載MCU", scope: "マイコン・車載プロセッサ", supplyId: "c12-mcu" },
   { id: "power-semi", layer: "SEMI", label: "パワー半導体（SiC/IGBT）", scope: "SiC MOSFET・IGBT・パワーモジュール", supplyId: "c13-パワー半導体" },
-  { id: "analog-passive", layer: "SEMI", label: "アナログ・受動部品・センサ", scope: "MLCC・アナログIC・ディスクリート", supplyId: null },
+  { id: "analog-passive", layer: "SEMI", label: "アナログ・受動部品・センサ", scope: "MLCC・アナログIC・ディスクリート", supplyId: "x-analog-passive" },
 
   { id: "adas-soc", layer: "SOFTWARE", label: "ADAS SoC・イメージセンサ", scope: "自動運転チップ・車載カメラ", supplyId: "c14-adas-soc-カメラ" },
-  { id: "lidar", layer: "SOFTWARE", label: "LiDAR", scope: "レーザー測距センサ", supplyId: null },
+  { id: "lidar", layer: "SOFTWARE", label: "LiDAR", scope: "レーザー測距センサ", supplyId: "x-lidar" },
   { id: "auto-software", layer: "SOFTWARE", label: "車載ソフト・SDV基盤", scope: "車載OS・ミドルウェア・MaaS基盤", supplyId: null },
 
   { id: "steel", layer: "MATERIAL", label: "鋼材", scope: "高張力鋼板・電磁鋼板", supplyId: "c1-metal鋼材" },
@@ -220,12 +222,17 @@ export const COMPANY_SEGMENT: Record<string, SegmentId> = {
   "knorr-bremse": "brake",
   "hl-mando": "brake",
   akebono: "brake",
-  hanon: "thermal",
+  hanon: "thermal-ev",
   modine: "thermal",
   mahle: "thermal",
   "johnson-matthey": "exhaust",
   eberspaecher: "exhaust",
   cataler: "exhaust",
+
+  // ── EV熱マネジメントの中国勢
+  sanhua: "thermal-ev",
+  yinlun: "thermal-ev",
+  aotecar: "thermal",
 };
 
 /**

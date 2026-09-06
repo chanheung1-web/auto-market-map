@@ -12,7 +12,10 @@ import { EXTRA_CATEGORIES } from "@/lib/supplyChainExtra";
 import type { Quote } from "@/lib/yahooFinance";
 
 type Props = {
+  /** 階層フィルタ適用後。木に並べる対象。 */
   companies: Company[];
+  /** 絞り込み前の全銘柄。他カテゴリを主とする企業の判定に使う。 */
+  allCompanies: Company[];
   quotes: Map<string, Quote>;
   newsCountByCompany: Map<string, number>;
   portfolio: PortfolioLink | null;
@@ -54,6 +57,29 @@ function concentration(top3: number | null): { text: string; tone: string } | nu
   if (top3 >= 70) return { text: "寡占", tone: "border-red-700 bg-red-900/60 text-red-300" };
   if (top3 >= 45) return { text: "上位集中", tone: "border-amber-700 bg-amber-900/60 text-amber-300" };
   return { text: "分散", tone: "border-zinc-700 bg-zinc-800 text-zinc-300" };
+}
+
+/**
+ * 解説文の **強調** を太字にする。
+ *
+ * supplyChain の summary はレポートから起こした文章で、要点が ** で
+ * 囲まれている。素のまま出すとアスタリスクが画面に見えてしまう。
+ * 記法はこれだけなので Markdown ライブラリは入れない。
+ */
+function Emphasis({ text }: { text: string }) {
+  return (
+    <>
+      {text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
+        part.startsWith("**") && part.endsWith("**") ? (
+          <strong key={i} className="font-semibold text-zinc-100">
+            {part.slice(2, -2)}
+          </strong>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </>
+  );
 }
 
 function CompanyRow({
@@ -338,7 +364,9 @@ function SegmentCard({
 
       {open && supply && (
         <div className="border-t border-zinc-800 px-3 py-2">
-          <p className="text-sm leading-relaxed text-zinc-300">{supply.summary}</p>
+          <p className="text-sm leading-relaxed text-zinc-300">
+            <Emphasis text={supply.summary} />
+          </p>
           {supply.driver && (
             <p className="mt-1 text-[11px] text-zinc-500">
               <span className="text-zinc-600">ドライバー: </span>
@@ -395,6 +423,7 @@ function SegmentCard({
 
 export function ChainSection({
   companies,
+  allCompanies,
   quotes,
   newsCountByCompany,
   portfolio,
@@ -484,7 +513,7 @@ export function ChainSection({
                     scope={s.scope}
                     supply={s.supplyId ? (SUPPLY_BY_ID.get(s.supplyId) ?? null) : null}
                     members={members}
-                    allCompanies={companies}
+                    allCompanies={allCompanies}
                     quotes={quotes}
                     newsCountByCompany={newsCountByCompany}
                     portfolio={portfolio}
@@ -504,7 +533,7 @@ export function ChainSection({
                   scope="画面から追加した銘柄。セグメントは segments.ts で割り当てる"
                   supply={null}
                   members={extra}
-                  allCompanies={companies}
+                  allCompanies={allCompanies}
                   quotes={quotes}
                   newsCountByCompany={newsCountByCompany}
                   portfolio={portfolio}

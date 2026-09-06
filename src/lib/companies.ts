@@ -268,6 +268,11 @@ export const COMPANIES: Company[] = [
   { id: "johnson-matthey", name: "Johnson Matthey", code: "JMAT.L", exchange: "LSE", region: "欧州", country: "英国", layer: "TIER1", position: "排ガス触媒で世界首位級。白金族の精製も" },
   { id: "eberspaecher", name: "Eberspächer", code: null, exchange: null, region: "欧州", country: "ドイツ", layer: "TIER1", position: "非上場。排気系・車載ヒーター" },
   { id: "cataler", name: "キャタラー", code: null, exchange: null, region: "日本", country: "日本", layer: "TIER1", position: "非上場(トヨタ系)。排ガス触媒・燃料電池触媒" },
+
+  // ── EV熱マネジメントの中国勢 ──────────────────────────────
+  { id: "sanhua", name: "三花智控(Sanhua)", code: "002050.SZ", exchange: "SZSE", region: "中国", country: "中国", layer: "TIER1", position: "電子膨張弁で世界首位。Teslaの最大の外部熱マネジメント供給元" },
+  { id: "yinlun", name: "銀輪股份(Yinlun)", code: "002126.SZ", exchange: "SZSE", region: "中国", country: "中国", layer: "TIER1", position: "熱交換器。商用車から車載EVへ展開" },
+  { id: "aotecar", name: "奥特佳(Aotecar)", code: "002239.SZ", exchange: "SZSE", region: "中国", country: "中国", layer: "TIER1", position: "車載用電動コンプレッサ" },
 ];
 
 /** 株価を取りに行ける（上場している）企業だけを返す。 */
