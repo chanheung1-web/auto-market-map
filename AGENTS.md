@@ -226,6 +226,7 @@ Turbopack が `the chunking context does not support external modules (request: 
 | `news.ts`（型・`RECENT_DAYS`・`resolveCompanyIds`） | `news.server.ts`（JSONL読み取り） |
 | `portfolio.ts`（型・`normalizeCode`） | `portfolio.server.ts`（holdings/watchlist読み取り） |
 | `topics.ts`（型） | `topics.server.ts`（Markdown読み取り） |
+| `collectorStatus.ts`（型） | `collectorStatus.server.ts`（収集ログ読み取り） |
 
 `*.server.ts` の先頭には `import "server-only"` を置く。間違えて
 クライアントから import したとき、ビルドの謎エラーではなく
@@ -295,6 +296,29 @@ GitHub API ではないのでトークン不要）。
 銘柄の `news N` バッジは「この企業に今何か起きている」の合図なので、
 2か月前の記事で点灯すると最近動きのある企業を見分けられなくなる。
 件数で打ち切ると「上限で消えた」のか「最近ニュースがない」のかも区別できなくなる。
+
+## ニュース収集が止まったら画面に出す
+
+**2026-09-19〜09-28 の10日間、ニュース収集が止まっていたのに誰も気づけなかった。**
+原因は無人実行の Claude Code CLI のログインが切れたことで、
+auto-industry-watcher/logs には毎朝
+
+    Failed to authenticate: OAuth session expired and could not be refreshed
+
+と出ていた。だがアプリは古いニュースを正常な顔で出し続け、ログを開かないかぎり
+分からなかった。対話的に Claude Code を開いた時点でトークンが更新されて復旧した。
+
+`/api/collector-status` がそのログを読み、止まっているときだけ固定バーの下に
+警告を出す。判定は3種類。
+
+| state | 意味 | 対処 |
+|---|---|---|
+| auth | 認証切れで失敗中 | Claude Code を一度開いてログインし直す |
+| failing | 認証以外で失敗中 | 該当日のログを見る |
+| stale | 2日以上実行されていない | PCの電源・タスクスケジューラ |
+
+実ログの履歴で検証済み（9/19時点なら「認証切れ・1日連続」と出ていた）。
+**警告を消すために判定を緩めないこと。**出ないことのほうが害が大きい。
 
 ## 銘柄検索は二段構え（日本語が引けない問題）
 

@@ -6,6 +6,7 @@ import { RECENT_DAYS, type NewsItem } from "@/lib/news";
 import type { PortfolioLink } from "@/lib/portfolio";
 import { formatPercent, summarizeRegions } from "@/lib/regions";
 import type { TopicReport } from "@/lib/topics";
+import type { CollectorStatus } from "@/lib/collectorStatus";
 import type { Quote } from "@/lib/yahooFinance";
 import { AddCompanyForm } from "./AddCompanyForm";
 import { NewsPanel } from "./NewsPanel";
@@ -47,6 +48,7 @@ export function Dashboard() {
     weekly: [],
     daily: [],
   });
+  const [collector, setCollector] = useState<CollectorStatus | null>(null);
   const [fetchedAt, setFetchedAt] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -129,6 +131,15 @@ export function Dashboard() {
       .then((res) => res.json())
       .then((data: { news: NewsItem[] }) => setNews(data.news))
       .catch(() => setNews([]));
+  }, []);
+
+  // ニュース収集の健全性。収集が止まってもアプリは古いニュースを正常な顔で
+  // 出し続けてしまう（実際に9/19〜9/28の10日間、誰も気づけなかった）。
+  useEffect(() => {
+    fetch("/api/collector-status")
+      .then((res) => res.json())
+      .then((data: CollectorStatus) => setCollector(data))
+      .catch(() => setCollector(null));
   }, []);
 
   useEffect(() => {
@@ -253,6 +264,26 @@ export function Dashboard() {
           </ul>
         </nav>
       </div>
+
+      {/* 収集が止まっているときだけ出す。止まっていても画面の見た目は正常なので、
+          明示しないかぎり古いニュースを最新と読み違える。 */}
+      {collector && collector.message && (
+        <div
+          role="alert"
+          className={`mb-4 rounded-lg border p-3 text-sm ${
+            collector.state === "auth"
+              ? "border-amber-700 bg-amber-950/60 text-amber-100"
+              : "border-red-800 bg-red-950/60 text-red-100"
+          }`}
+        >
+          <p className="font-medium">{collector.message}</p>
+          {collector.lastSuccess && (
+            <p className="mt-1 text-xs opacity-80">
+              最後に成功した収集: {collector.lastSuccess}。それ以降のニュースと日次ダイジェストは届いていません。
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="space-y-6">
 
