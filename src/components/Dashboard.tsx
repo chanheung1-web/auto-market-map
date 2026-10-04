@@ -271,7 +271,7 @@ export function Dashboard() {
         <div
           role="alert"
           className={`mb-4 rounded-lg border p-3 text-sm ${
-            collector.state === "auth"
+            collector.state === "auth" || collector.state === "limit"
               ? "border-amber-700 bg-amber-950/60 text-amber-100"
               : "border-red-800 bg-red-950/60 text-red-100"
           }`}

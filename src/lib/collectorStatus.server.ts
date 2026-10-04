@@ -27,7 +27,7 @@ function daysBetween(from: string, to: string): number {
   return Math.round((b.getTime() - a.getTime()) / 86_400_000);
 }
 
-type RunResult = { date: string; exitCode: number | null; authFailed: boolean };
+type RunResult = { date: string; exitCode: number | null; authFailed: boolean; limitHit: boolean };
 
 async function readRun(file: string): Promise<RunResult | null> {
   const m = file.match(/^(\d{4}-\d{2}-\d{2})\.log$/);
@@ -47,6 +47,10 @@ async function readRun(file: string): Promise<RunResult | null> {
     date: m[1],
     exitCode: last,
     authFailed: /Failed to authenticate|OAuth session expired/i.test(lastRunText),
+    // 2026-10-04 に初めて出た。認証は生きているが、その時点の使用量が上限に
+    // 達していて弾かれる。リセットを待てば通るが、定期タスクは再試行しないので
+    // その日の収集は手動で取り直さないかぎり欠ける。
+    limitHit: /session limit|usage limit|rate limit/i.test(lastRunText),
   };
 }
 
@@ -92,6 +96,14 @@ export async function loadCollectorStatus(now = new Date()): Promise<CollectorSt
       return {
         state: "auth",
         message: `ニュース収集が認証切れで止まっています（${failingDays}日連続）。Claude Code を一度開いてログインし直すと、翌朝から復旧します。`,
+        lastSuccess,
+        failingDays,
+      };
+    }
+    if (latest.limitHit) {
+      return {
+        state: "limit",
+        message: `今朝のニュース収集が使用量の上限で失敗しました。上限のリセット後に auto-industry-watcher/scripts/run-daily-collector.ps1 を手動で実行すると、今日の分を取り直せます（翌朝は自動で再開します）。`,
         lastSuccess,
         failingDays,
       };
